@@ -3,6 +3,18 @@ import argparse
 
 from .index import CommentIndexer
 from .analyze import CommentAnalyzer
+from .create import IndexCreator
+
+def create_command(args):
+    parser = argparse.ArgumentParser(description='Create fcc-comments index with mappings')
+    parser.add_argument(
+        '--endpoint', dest='endpoint',
+        default=os.environ.get('ES_ENDPOINT', 'http://127.0.0.1:9200/')
+    )
+    command_args = parser.parse_args(args=args)
+
+    creator = IndexCreator(**vars(command_args))
+    creator.run()
 
 
 def index_command(args):
@@ -53,12 +65,13 @@ def analyze_command(args):
 
 def main():
     parser = argparse.ArgumentParser(description='Run commands to index and analyze FCC comments')
-    parser.add_argument('command', choices=['index', 'analyze'])
+    parser.add_argument('command', choices=['index', 'analyze', 'create'])
     parser.add_argument('args', nargs=argparse.REMAINDER)
 
     args = parser.parse_args()
 
     {
+        'create': create_command,
         'index': index_command,
         'analyze': analyze_command,
     }[args.command](args.args)

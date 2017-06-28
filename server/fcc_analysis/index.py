@@ -10,6 +10,7 @@ from tqdm import tqdm
 
 import requests
 
+from . import mappings
 
 class CommentIndexer:
 
@@ -26,6 +27,7 @@ class CommentIndexer:
         self.verify = verify
         self.endpoint = endpoint
         self.fcc_endpoint = 'https://ecfsapi.fcc.gov/filings'
+        self.index_fields = mappings.FIELDS.keys()
 
     def run(self):
         index_queue = multiprocessing.Queue()
@@ -95,6 +97,15 @@ class CommentIndexer:
                 else:
                     break
             for filing in filings:
+                # don't want to keep all of the giant proceedings array
+                proceedings = []
+                for proc in filing['proceedings']:
+                    idx = proc.get('_index', None)
+                    if idx:
+                        proceedings.append({'_index': idx})
+                for exclude in filing.keys() - self.index_fields:
+                    filing.pop(exclude, None)
+                filing['proceedings'] = proceedings
                 yield filing
 
             if len(filings) != self.limit:
@@ -121,7 +132,7 @@ class CommentIndexer:
             except KeyError:
                 pass
 
-            index = {"create": {"_id": document['id_submission']}}
+            index = {'index': {'_id': document['id_submission']}}
             payload_size += payload.write(json.dumps(index))
             payload_size += payload.write('\n')
             payload_size += payload.write(json.dumps(document))
@@ -129,7 +140,7 @@ class CommentIndexer:
 
             if payload_size > 8 * 1024 * 1024:
                 with warnings.catch_warnings():
-                    warnings.simplefilter("ignore")
+                    warnings.simplefilter('ignore')
                     response = requests.post(endpoint, data=payload.getvalue(), verify=self.verify)
                     if response == 413:
                         raise Exception('Too large!')
@@ -140,7 +151,7 @@ class CommentIndexer:
                             created = True
 
         with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
+            warnings.simplefilter('ignore')
             response = requests.post(endpoint, data=payload.getvalue(), verify=self.verify)
             payload = io.StringIO()
             payload_size = 0

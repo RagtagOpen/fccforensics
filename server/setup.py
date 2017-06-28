@@ -73,6 +73,6 @@ setup(
 
     test_suite='setup.unittest_test_suite',
 
-    install_requires=['requests', 'tqdm'],
+    install_requires=['requests', 'tqdm', 'elasticsearch>=5.0.0,<6.0.0'],
 
 )

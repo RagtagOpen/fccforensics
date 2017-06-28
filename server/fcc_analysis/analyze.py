@@ -123,7 +123,6 @@ class CommentAnalyzer:
 
             if not scroll_id:
                 break
-            print('get wutg scroll_id %s' % scroll_id)
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore")
                 response = requests.post(scroll_url, headers=headers, verify=self.verify, data=json.dumps({
@@ -133,10 +132,8 @@ class CommentAnalyzer:
 
             idx += 1
             data = response.json()
-            print('data=\n%s' % json.dumps(data, indent=2))
             scroll_id = data.get('_scroll_id', None)
             hits = data.get('hits', {}).get('hits', [])
-            print('batch=%s hits=%s' % (idx, len(hits)))
 
         progress.close()
 
