@@ -58,6 +58,10 @@ def analyze_command(args):
         help='Don\'t verify SSL certs', default=True,
         const=False
     )
+    parser.add_argument(
+        '--limit', dest='limit',
+        default=10000
+    )
     command_args = parser.parse_args(args=args)
     analyzer = CommentAnalyzer(**vars(command_args))
     analyzer.run()

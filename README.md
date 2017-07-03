@@ -5,7 +5,7 @@ Based on https://github.com/csinchok/fcc-comment-analysis, plus more from Ragtag
 
 Uses [Elasticsearch](https://www.elastic.co/) to get data from [https://www.fcc.gov/ecfs/public-api-docs.html] (FCC's public API)
 
-## Setup
+## Local setup
 
 Make sure you have python3
 
@@ -25,9 +25,9 @@ Fetch and index some data from the FCC API:
 
     $ fcc index --endpoint=http://localhost:9200/ -g 2017-06-01
 
-Analyze data and add to `analysis` section of documents:
+[Analyze data](https://github.com/RagtagOpen/fccforensics/blob/master/server/fcc_analysis/analyzers.py) and add to `analysis` section of documents:
 
-    $ fcc analyze --endpoint=http://localhost:9200/
+    $ fcc analyze --endpoint=http://localhost:9200/ --limit 40000
 
 Set up a local Kibana server: https://www.elastic.co/downloads/kibana
 
@@ -40,4 +40,5 @@ Play in Kibana:
   - Create
 
 [https://ragtag.org/connect](Contribute!)
+
 

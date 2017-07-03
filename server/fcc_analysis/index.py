@@ -8,13 +8,15 @@ import warnings
 import multiprocessing
 from tqdm import tqdm
 
+from elasticsearch import Elasticsearch
+from elasticsearch.helpers import bulk
 import requests
 
 from . import mappings
 
 class CommentIndexer:
 
-    def __init__(self, lte=None, gte=None, limit=250, sort='date_disseminated,DESC', fastout=False, verify=True, endpoint='http://127.0.0.1/'):
+    def __init__(self, lte=None, gte=None, limit=250, sort='date_disseminated,ASC', fastout=False, verify=True, endpoint='http://127.0.0.1/'):
         if gte and not lte:
             lte = datetime.now().isoformat()
         if lte and not gte:
@@ -28,27 +30,31 @@ class CommentIndexer:
         self.endpoint = endpoint
         self.fcc_endpoint = 'https://ecfsapi.fcc.gov/filings'
         self.index_fields = mappings.FIELDS.keys()
+        self.es = Elasticsearch(self.endpoint)
+        self.stats = {'indexed': 0, 'fetched': 0}
 
     def run(self):
+        self.total = self.get_total() or 5000000
+        if not self.total:
+            print('error loading document total; using estimate')
+
         index_queue = multiprocessing.Queue()
 
         bulk_index_process = multiprocessing.Process(
             target=self.bulk_index, args=(index_queue,),
         )
         bulk_index_process.start()
-        total = self.get_total()
-        if not total:
-            print('error loading document total; using estimate')
-            total = 5000000
-        progress = tqdm(total=total)
 
         for comment in self.iter_comments():
+            self.stats['fetched'] += 1
+            if not self.stats['fetched'] % 100:
+                print('fetched %s/%s\t%s%%\t%s' % (self.stats['fetched'], self.total,
+                    int(self.stats['fetched'] / self.total * 100),
+                    comment['date_disseminated']))
             index_queue.put(comment)
-            progress.update(1)
 
         index_queue.put(None)
         bulk_index_process.join()
-        progress.close()
 
     def build_query(self):
         query = {
@@ -56,7 +62,7 @@ class CommentIndexer:
             'sort': self.sort
         }
         if self.lte and self.gte:
-            query['date_received'] = '[gte]{gte}[lte]{lte}'.format(
+            query['date_disseminated'] = '[gte]{gte}[lte]{lte}'.format(
                 gte=self.gte,
                 lte=self.lte
             )
@@ -85,17 +91,12 @@ class CommentIndexer:
                 'limit': self.limit,
                 'offset': page * self.limit,
             })
-            for i in range(7):
-                response = requests.get(self.fcc_endpoint, params=query)
-
-                try:
-                    filings = response.json().get('filings', [])
-                except json.decoder.JSONDecodeError:
-                    # Exponentially wait--sometimes the API goes down.
-                    time.sleep(math.pow(2, i))
-                    continue
-                else:
-                    break
+            response = requests.get(self.fcc_endpoint, params=query)
+            try:
+                filings = response.json().get('filings', [])
+            except json.decoder.JSONDecodeError:
+                print('error decoding results: %s' % response)
+                break
             for filing in filings:
                 # don't want to keep all of the giant proceedings array
                 proceedings = []
@@ -106,57 +107,43 @@ class CommentIndexer:
                 for exclude in filing.keys() - self.index_fields:
                     filing.pop(exclude, None)
                 filing['proceedings'] = proceedings
+                filing.pop('_index', None)
                 yield filing
 
             if len(filings) != self.limit:
                 break
 
     def bulk_index(self, queue):
-        endpoint = '{}{}/filing/{}'.format(
-            self.endpoint,
-            'fcc-comments',
-            '_bulk'
-        )
 
-        payload = io.StringIO()
-        payload_size = 0
-        created = False
+        actions = []
 
         while True:
             document = queue.get()
             if document is None:
+                print('nothing in the queue')
                 break
 
-            try:
-                del document['_index']
-            except KeyError:
-                pass
+            doc = {
+                '_index': 'fcc-comments',
+                '_type': 'document',
+                '_id': document['id_submission'],
+                '_source': document
+            }
+            actions.append(doc)
 
-            index = {'index': {'_id': document['id_submission']}}
-            payload_size += payload.write(json.dumps(index))
-            payload_size += payload.write('\n')
-            payload_size += payload.write(json.dumps(document))
-            payload_size += payload.write('\n')
-
-            if payload_size > 8 * 1024 * 1024:
+            if len(actions) == 250:
                 with warnings.catch_warnings():
                     warnings.simplefilter('ignore')
-                    response = requests.post(endpoint, data=payload.getvalue(), verify=self.verify)
-                    if response == 413:
-                        raise Exception('Too large!')
-                    payload = io.StringIO()
-                    payload_size = 0
-                    for item in response.json()['items']:
-                        if item['create']['status'] == 201:
-                            created = True
+                    response = bulk(self.es, actions)
+                    self.stats['indexed'] += response[0]
+                    print('\tindexed %s/%s\t%s%%' % (self.stats['indexed'], self.total,
+                        int(self.stats['indexed'] / self.total * 100)))
+                    actions = []
 
         with warnings.catch_warnings():
             warnings.simplefilter('ignore')
-            response = requests.post(endpoint, data=payload.getvalue(), verify=self.verify)
-            payload = io.StringIO()
-            payload_size = 0
-            for item in response.json()['items']:
-                if item['create']['status'] == 201:
-                    created = True
+            response = bulk(self.es, actions)
+            self.stats['indexed'] += response[0]
+            print('\tindexed %s\t%s' % (self.stats['indexed'], self.total))
 
-        return created
+        return self.stats['indexed']

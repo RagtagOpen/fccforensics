@@ -5,17 +5,24 @@ import requests
 import warnings
 import io
 
+from elasticsearch import Elasticsearch
+from elasticsearch.helpers import bulk, scan
+from elasticsearch.exceptions import ConnectionTimeout
+
 from .analyzers import analyze
 
 
 class CommentAnalyzer:
 
-    def __init__(self, endpoint='http://localhost:9200/', verify=True):
+    def __init__(self, endpoint='http://localhost:9200/', verify=True, limit=10000):
         self.endpoint = endpoint
         self.verify = verify
+        self.es = Elasticsearch(self.endpoint)
+        self.limit = int(limit)
+        self.indexed = 0
 
     def run(self):
-        in_queue = multiprocessing.Queue(maxsize=1000)
+        in_queue = multiprocessing.Queue(maxsize=10000)
         out_queue = multiprocessing.Queue()
         tagging_processes = []
 
@@ -27,12 +34,28 @@ class CommentAnalyzer:
         index_process = multiprocessing.Process(target=self.index_worker, args=(out_queue,))
         index_process.start()
 
+        fetched = 0
+        query = {
+            'query': {
+                'bool': {
+                    'must_not': {
+                        'exists': {
+                            'field': 'analysis'
+                        }
+                    }
+                }
+            }
+        }
         try:
-            for comment in self.iter_comments(size=100):
-                in_queue.put(comment)
-        except KeyboardInterrupt:
-            pass
-
+            for doc in scan(self.es, index='fcc-comments', query=query, size=100):
+                in_queue.put(doc['_source'])
+                fetched += 1
+                if not fetched % 250:
+                    print('fetched %s/%s\t%s%%' % (fetched, self.limit, int(fetched/self.limit*100)))
+                if fetched == self.limit:
+                    break
+        except ConnectionTimeout:
+            print('error fetching: connection timeout')
         for _ in range(5):
             in_queue.put(None)
 
@@ -44,7 +67,6 @@ class CommentAnalyzer:
         index_process.join()
 
     def tagging_worker(self, in_queue, out_queue):
-
         while True:
             comment = in_queue.get()
             if comment is None:
@@ -52,88 +74,41 @@ class CommentAnalyzer:
             analysis = analyze(comment)
             out_queue.put((comment['id_submission'], analysis))
 
-    def index_worker(self, queue, size=250):
+    def index_worker(self, queue, size=200):
 
-        url = '{}{}/filing/{}'.format(
-            self.endpoint,
-            'fcc-comments',
-            '_bulk'
-        )
-
-        payload = io.StringIO()
-        counter = 0
+        actions = []
+        indexed = 0
         while True:
             item = queue.get()
             if item is None:
-                print('exiting...')
                 break
             id_submission, analysis = item
 
-            index = {"update": {"_id": id_submission}}
-            payload.write(json.dumps(index))
-            payload.write('\n')
-            payload.write(json.dumps({'doc': {'analysis': analysis}}))
-            payload.write('\n')
+            doc = {
+                '_index': 'fcc-comments',
+                '_type': 'document',
+                '_op_type': 'update',
+                '_id': id_submission,
+                'doc': { 'analysis': analysis },
+            }
+            actions.append(doc)
 
-            counter += 1
-            if counter % size == 0:
+            if len(actions) == size:
                 with warnings.catch_warnings():
-                    warnings.simplefilter("ignore")
-                    response = requests.post(url, data=payload.getvalue(), verify=self.verify)
-                    if 'items' not in response.json():
-                        print(response.json())
-                    else:
-                        for item in response.json()['items']:
-                            if 'update' in item and item['update'].get('result') not in ('updated', 'noop'):
-                                print(json.dumps(item, indent=2))
-                                raise Exception('Failure!')
-                    if response.status_code != 200:
-                        print(response.text)
-                        return
-                payload = io.StringIO()
-                counter = 0
-
-    def iter_comments(self, timeout='5m', size=100, progress=True):
-        start_url = '{}fcc-comments/filing/_search?scroll={}'.format(
-            self.endpoint, timeout
-        )
-        scroll_url = '{}_search/scroll'.format(self.endpoint)
-        headers={'Content-Type': 'application/json'}
+                    warnings.simplefilter('ignore')
+                    try:
+                        response = bulk(self.es, actions)
+                        indexed += response[0]
+                        print('\tindexed %s/%s\t%s%%' % (indexed, self.limit,
+                            int(indexed / self.limit * 100)))
+                        actions = []
+                    except ConnectionTimeout:
+                        print('error indexing: connection timeout')
 
         with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
-            response = requests.post(start_url, verify=self.verify, headers=headers, data=json.dumps({
-                'size': size,
-                'query': {
-                    'match_all': {}
-                },
-                'sort': [
-                    '_doc'
-                ]
-            }))
-        scroll_id = response.json()['_scroll_id']
-        progress = tqdm(total=response.json()['hits']['total'])
-        hits = response.json()['hits']['hits']
-        idx = 0
-        while hits:
+            warnings.simplefilter('ignore')
+            response = bulk(self.es, actions)
+            indexed += response[0]
+            print('indexed %s' % (indexed))
 
-            for hit in hits:
-                yield hit['_source']
-                progress.update(1)
-
-            if not scroll_id:
-                break
-            with warnings.catch_warnings():
-                warnings.simplefilter("ignore")
-                response = requests.post(scroll_url, headers=headers, verify=self.verify, data=json.dumps({
-                    'scroll': timeout,
-                    'scroll_id': scroll_id
-                }))
-
-            idx += 1
-            data = response.json()
-            scroll_id = data.get('_scroll_id', None)
-            hits = data.get('hits', {}).get('hits', [])
-
-        progress.close()
 
