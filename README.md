@@ -42,3 +42,41 @@ Play in Kibana:
 [https://ragtag.org/connect](Contribute!)
 
 
+```
+curl -XGET "http://localhost:9200/fcc-comments/_search" -H 'Content-Type: application/json' -d'
+{
+  "size": 0,
+  "aggs": {
+    "sentiment": {
+      "terms": {
+        "field": "analysis.titleii"
+      }
+    }
+  }
+}'
+```
+
+## Production setup
+
+Set up cloud-hosted Elasticsearch:
+- read-only user for queries
+- read-write user for ingest and analyze
+- get ES_URL like https://user:password@hostname:port
+
+Load current dataset into index:
+- create index: `fcc create --endpoint=$ES_URL`
+- fetch comments from FCC and add to index: `fcc index --endpoint=$ES_URL -g 2017-05-01` (restart as needed if/when API times out)
+- run static analyzers, 100k at a time: `fcc analyze --endpoint=$ES_URL --limit 100000` (repeat until all docs have analyzed: `curl '$ES_URL/_count?pretty'  -H 'Content-Type: application/json' -d'{"query":{"bool":{"must_not":{"exists":{"field":"analysis"}}}}}')`
+
+Create AWS Lambda to refresh data:
+- TODO
+
+Create AWS Lambda to proxy Elasticsearch queries:
+- `cd server/fcc_analysis`
+- `zip -r ../lambda.zip .`
+- `cd $VIRTUAL_ENV/lib/python3.6/site-packages`
+- `zip -r path/to/server/lambda.zip`
+- upload to AWS; set handler to `lambda.query_positive_by_date`
+
+Create AWS API Gateway to proxy Lambda function
+
