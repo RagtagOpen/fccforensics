@@ -149,6 +149,8 @@ def capsemail(comment):
 def fulladdress(comment):
 
     address = comment.get('addressentity', {})
+    if isinstance(address, list):
+        address = address[0]
     for key in ('address_line_1', 'city', 'state', 'zip_code'):
         if not address.get(key):
             return False
