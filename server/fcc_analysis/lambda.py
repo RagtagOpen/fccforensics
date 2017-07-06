@@ -6,8 +6,20 @@ def query_positive_by_date(event=None, context=None):
     query = {
       "size": 0,
       "query": {
-        "term": {
-          "analysis.titleii": "true"
+        "bool": {
+          "minimum_should_match": 1,
+          "should": [
+            {
+              "term": {
+                "analysis.titleii": true
+              }
+            },
+            {
+              "term": {
+                "analysis.sentiment_sig_terms": true
+              }
+            }
+          ]
         }
       },
       "aggs": {

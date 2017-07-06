@@ -3,7 +3,46 @@ Determine public opinion on net neutrality issue via sourcing and sentiment anal
 
 Based on https://github.com/csinchok/fcc-comment-analysis, plus more from Ragtag volunteers
 
-Uses [Elasticsearch](https://www.elastic.co/) to get data from [https://www.fcc.gov/ecfs/public-api-docs.html] (FCC's public API)
+Uses [Elasticsearch](https://www.elastic.co/) to get data from [https://www.fcc.gov/ecfs/public-api-docs.html](FCC's public API)
+
+## Queries
+
+### positive sentiment
+
+- `analysis.titleii` from [regex patterns](https://github.com/RagtagOpen/fccforensics/blob/master/server/fcc_analysis/analyzers.py#L14)
+- `analysus.sentiment_sig_terms` from [significant terms](https://github.com/RagtagOpen/fccforensics/blob/master/sig_terms.md)
+
+```
+curl -XGET "http://localhost:9200/fcc-comments/_search" -H 'Content-Type: application/json' -d'
+{
+  "size": 0,
+  "query": {
+    "bool": {
+      "minimum_should_match": 1,
+      "should": [
+        {
+          "term": {
+            "analysis.titleii": true
+          }
+        },
+        {
+          "term": {
+            "analysis.sentiment_sig_terms": true
+          }
+        }
+      ]
+    }
+  },
+  "aggs": {
+    "by_week": {
+      "date_histogram": {
+        "field": "date_received",
+        "interval": "week"
+      }
+    }
+  }
+}'
+```
 
 ## Local setup
 
@@ -41,20 +80,6 @@ Play in Kibana:
 
 [https://ragtag.org/connect](Contribute!)
 
-
-```
-curl -XGET "http://localhost:9200/fcc-comments/_search" -H 'Content-Type: application/json' -d'
-{
-  "size": 0,
-  "aggs": {
-    "sentiment": {
-      "terms": {
-        "field": "analysis.titleii"
-      }
-    }
-  }
-}'
-```
 
 ## Production setup
 
