@@ -72,7 +72,7 @@ class SigTermsSentiment:
                     },
                     {
                       "exists": {
-                        "field": "analysis.sentiment_sig_terms"
+                        "field": "analysis.sentiment_sig_terms_ordered"
                       }
                     }
                   ]
@@ -90,20 +90,24 @@ class SigTermsSentiment:
 
         fetched = 0
         try:
-            for doc in scan(self.es, index='fcc-comments', query=query, size=100):
-                index_queue.put(doc['_id'])
-                fetched += 1
-                if not fetched % 250:
+            while fetched < self.limit:
+                # use search instead of scan because keeping an ordered scan cursor
+                # open negates the performance benefits
+                resp = self.es.search(index='fcc-comments', body=query, size=100)
+                for doc in resp['hits']['hits']:
+                    index_queue.put(doc['_id'])
+                    fetched += 1
+                print('%s\t%s\t%s' % (fetched, doc['_score'],
+                    doc['_source']['text_data']))
+                if not fetched % 200:
                     print('fetched %s/%s\t%s%%' % (fetched, self.limit, int(fetched/self.limit*100)))
-                if fetched == self.limit:
-                    break
         except ConnectionTimeout:
             print('error fetching: connection timeout')
 
         index_queue.put(None)
         bulk_index_process.join()
 
-    def bulk_index(self, queue, size=200):
+    def bulk_index(self, queue, size=20):
 
         actions = []
         indexed = 0
@@ -118,7 +122,7 @@ class SigTermsSentiment:
                 '_type': 'document',
                 '_op_type': 'update',
                 '_id': doc_id,
-                'doc': { 'analysis.sentiment_sig_terms': True },
+                'doc': { 'analysis.sentiment_sig_terms_ordered': True },
             }
             actions.append(doc)
 

@@ -10,7 +10,7 @@ Uses [Elasticsearch](https://www.elastic.co/) to get data from [https://www.fcc.
 ### positive sentiment
 
 - `analysis.titleii` from [regex patterns](https://github.com/RagtagOpen/fccforensics/blob/master/server/fcc_analysis/analyzers.py#L14)
-- `analysus.sentiment_sig_terms` from [significant terms](https://github.com/RagtagOpen/fccforensics/blob/master/sig_terms.md)
+- `analysus.sentiment_sig_terms_ordered` from [significant terms](https://github.com/RagtagOpen/fccforensics/blob/master/sig_terms.md)
 
 ```
 curl -XGET "http://localhost:9200/fcc-comments/_search" -H 'Content-Type: application/json' -d'
@@ -27,7 +27,7 @@ curl -XGET "http://localhost:9200/fcc-comments/_search" -H 'Content-Type: applic
         },
         {
           "term": {
-            "analysis.sentiment_sig_terms": true
+            "analysis.sentiment_sig_terms_ordered": true
           }
         }
       ]
@@ -98,9 +98,9 @@ Create AWS Lambda to refresh data:
 
 Create AWS Lambda to proxy Elasticsearch queries:
 - `cd server/fcc_analysis`
-- `zip -r ../lambda.zip .`
+- `zip -r ../lambda.zip . --exclude experiments/*`
 - `cd $VIRTUAL_ENV/lib/python3.6/site-packages`
-- `zip -r path/to/server/lambda.zip`
+- `zip -r path/to/server/lambda.zip .`
 - upload to AWS; set handler to `lambda.query_positive_by_date`
 
 Create AWS API Gateway to proxy Lambda function

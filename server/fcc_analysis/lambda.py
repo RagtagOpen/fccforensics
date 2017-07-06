@@ -11,12 +11,12 @@ def query_positive_by_date(event=None, context=None):
           "should": [
             {
               "term": {
-                "analysis.titleii": true
+                "analysis.titleii": True
               }
             },
             {
               "term": {
-                "analysis.sentiment_sig_terms": true
+                "analysis.sentiment_sig_terms_ordered": True
               }
             }
           ]
