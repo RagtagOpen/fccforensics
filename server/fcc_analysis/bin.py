@@ -4,6 +4,7 @@ import argparse
 from .index import CommentIndexer
 from .analyze import CommentAnalyzer
 from .create import IndexCreator
+from .sentiment import SigTermsSentiment
 
 def create_command(args):
     parser = argparse.ArgumentParser(description='Create fcc-comments index with mappings')
@@ -67,9 +68,23 @@ def analyze_command(args):
     analyzer.run()
 
 
+def positive_sig_terms_command(args):
+    parser = argparse.ArgumentParser(description='Tag comments that match positive significant terms')
+    parser.add_argument(
+        '--endpoint', dest='endpoint',
+        default=os.environ.get('ES_ENDPOINT', 'http://127.0.0.1:9200/')
+    )
+    parser.add_argument(
+        '--limit', dest='limit',
+        default=10000
+    )
+    command_args = parser.parse_args(args=args)
+    analyzer = SigTermsSentiment(**vars(command_args))
+    analyzer.run()
+
 def main():
     parser = argparse.ArgumentParser(description='Run commands to index and analyze FCC comments')
-    parser.add_argument('command', choices=['index', 'analyze', 'create'])
+    parser.add_argument('command', choices=['index', 'analyze', 'create', 'tag_sigterms'])
     parser.add_argument('args', nargs=argparse.REMAINDER)
 
     args = parser.parse_args()
@@ -78,4 +93,5 @@ def main():
         'create': create_command,
         'index': index_command,
         'analyze': analyze_command,
+        'tag_sigterms': positive_sig_terms_command,
     }[args.command](args.args)
