@@ -2,9 +2,17 @@
 
 ## negative
 
+`bot.recursive`
+
+> With respect to net neutrality and Title II. I encourage the commission to overturn Tom Wheeler's order to control the Internet. Internet users, rather than unelected bureaucrats, deserve to purchase whichever products we choose. Tom Wheeler's order to control the Internet is a exploitation  of net neutrality. It undid a pro-consumer framework that performed fabulously successfully for two decades with both parties' support.
+
+> With respect to Internet regulation and net neutrality. I request the commission to reverse Obama's power grab to regulate broadband. Internet users, not the FCC Enforcement Bureau, deserve to use whatever services we choose. Obama's power grab to regulate broadband is a distortion of net neutrality. It stopped a light-touch approach that worked very well for many years with bipartisan backing.
+
+> Dear Commissioners:  With respect to net neutrality. I want to encourage the FCC to repeal Obama's plan to control Internet access. Internet users, not big government, deserve to select whichever applications they want. Obama's plan to control Internet access is a exploitation  of net neutrality. It ended a hands-off system that performed supremely well for two decades with nearly universal consensus.
+
 `bot.american-jobs`
 
-> The FCC Open Internet Rules (net neutrality rules) are extremely important to me
+> The free-market Internet was an incredible engine of economic growth, innovation, and job creation since the 1990s and has already been substantially slowed by the 2015 Net Neutrality rules. The slowdown in investment is destroying jobs and risks a big future tax hike to make up for lost private investment. Save American jobs by repealing Net Neutrality
 
 `bot.unprecedented`
 

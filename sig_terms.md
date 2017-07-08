@@ -137,11 +137,43 @@ Run [test_sig_terms.py](https://github.com/RagtagOpen/fccforensics/blob/master/s
 - get 1000 worst matches
 - write document id, text, and score to `test_asc.csv`
 
+## misses
+
+matched by query, but should be negative
+
+About 300k into sig terms relevance, 62k identical comments, tagged `bot.american-jobs`
+
+> The free-market Internet was an incredible engine of economic growth, innovation, and job creation since the 1990s and has already been substantially slowed by the 2015 Net Neutrality rules. The slowdown in investment is destroying jobs and risks a big future tax hike to make up for lost private investment. Save American jobs by repealing Net Neutrality
+
+10603304789399  460k in, tagged `bot.best_cop`
+
+> The Title II order created a gaping gap in privacy protections by taking the best cop, the FTC, off the beat. That is reason enough to support Chairman Pai's proposal to restore Internet freedom. Restore privacy by repealing Net Neutrality.
+
+1060351723564, tagged `bot.economics_free_zone`
+
+> The FCC's Net Neutrality rules were written in the Obama White House by political staff and Tech Industry special interests who overruled the FCC's own experts. The FCC's own chief economist Tim Brennan called the rules "an economics-free zone." They should be repealed.
+
+tagged `bot.corrupt_result`
+
+> Obama's Net Neutrality order was the corrupt result of a corrupt process controlled by Silicon Valley special interests. It gives some of the biggest companies in the world a free ride at the expense of consumers and should be immediately repealed!
+
+
 ## tagging
 
-`fcc tag_sigterms --endpoint http://localhost:9200/ --limit 50000 `
-- set sentiment to true for documents matching [query for significant terms](https://github.com/RagtagOpen/fccforensics/blob/master/server/fcc_analysis/sentiment.py#L12) which don't already have `analysis.sentiment_sig_terms_ordered` set
+    export ES_ENDPONT="http://localhost:9200/"
+    cd server/fcc_analysis
 
+review 1%:
+
+    cd experiments
+    python print.py --limit 5000 --sample 1 | more
+    cd ..
+
+set `analysis.sentiment_sig_terms_ordered` to true for top matches of [query for significant terms](https://github.com/RagtagOpen/fccforensics/blob/master/server/fcc_analysis/sentiment.py#L12)
+
+    fcc tag_sigterms --limit 5000
+
+repeat
 
 
 
