@@ -1,5 +1,7 @@
 import re
 
+from fcc_analysis import tags
+
 WORDSPLIT_PATTERN = re.compile("['-]+", re.UNICODE)
 NON_CHAR_PATTERN = re.compile('[^a-z ]+', re.UNICODE)
 
@@ -108,6 +110,66 @@ def source(comment):
     if comment['text_data'].startswith('A free and open internet is critical for Americans to connect with their friends and family, exercise their freedom of speech'):
         return 'form.demandprogress'
 
+    '''
+        10603304789399
+        The Title II order created a gaping gap in privacy protections by taking the best cop, the FTC, off the beat. That is reason enough to support Chairman Pai's proposal to restore Internet freedom. Restore privacy by repealing Net Neutrality.
+    '''
+    if 'Restore privacy by repealing Net Neutrality' in comment['text_data']:
+        return 'bot.best_cop'
+
+    '''
+        105281371127474
+        I am in favor of strong net neutrality under Title II of the Telecommunications Act. (50.4k)
+    '''
+    if 'I am in favor of strong net neutrality under Title II of the Telecommunications Act' in comment['text_data']:
+        return 'bot.telecommunications_act'
+
+    '''
+        10524219503826
+        make sure net neutrality does not dissapear. It is the only thing saving the internet at this moment. If it is removed many webservices will be at risk (28.5k)
+        '''
+    if 'make sure net neutrality does not dissapear' in comment['text_data']:
+        return 'bot.dissapear'
+
+    '''
+    105252020204018
+    We should not leave the ability for small companies to compete with large online businesses up to the whims of our internet providers. It is out responsibility to defend our right to free market competition. IF THENEWSEARCHENGINE  is better than Google, Google's wealth should not strike down the new engine if our internet providers choose not to be benevolent. Save net neutrality. (28.6k)
+    '''
+    if 'small companies to compete with large online businesses up to the whims of our internet providers' in comment['text_data']:
+        return 'bot.thenewsearchengine'
+
+    '''
+    1060351723564
+    The FCC's Net Neutrality rules were written in the Obama White House by political staff and Tech Industry special interests who overruled the FCC's own experts. The FCC's own chief economist Tim Brennan called the rules "an economics-free zone." They should be repealed. (45.6k)
+    '''
+    if 'own chief economist Tim Brennan called the rules' in comment['text_data']:
+        return 'bot.economics_free_zone'
+
+    '''
+    10603433603879
+    Obama's Net Neutrality order was the corrupt result of a corrupt process controlled by Silicon Valley special interests. It gives some of the biggest companies in the world a free ride at the expense of consumers and should be immediately repealed! (77k)
+    '''
+    if 'corrupt result of a corrupt process' in comment['text_data']:
+        return 'bot.corrupt_result'
+
+    if 'mesmorized by money that it jeopardizes the well-being of its citizens. Is this how we MAGA' in comment['text_data']:
+        return 'bot.maga'
+
+    '''
+        TODO: pro templates
+
+        huge burden on microbusinesses (5.4k) 106031636823984
+
+        1051374845855
+        MY NAME JEFF (2.2k)
+
+        10531201619489
+        "The FCC's Open Internet Rules (net neutrality rules) are extremely important to me. I urge you to protect them." (17k)
+
+        1051877951361
+        Net Neutrality is not negotiable. ItÕs essential to everything we need in our society and democracy Ñ from educational and economic opportunities to political organizing and dissent. (29.7k)
+    '''
+
     try:
         last_sentence = comment['text_data'].split('.')[-2].strip()
     except IndexError:
@@ -200,23 +262,11 @@ def analyze(comment):
         'ingestion_method': ingestion_method(comment)
     }
 
-    source_mapping = {
-        'bot.unprecedented': False,
-        'bot.outraged': False,
-        'form.diminished-investment': False,
-        'form.freeourinternet': False,
-        'form.fwact': False,
-        'form.tpa': False,
-        'bot.recursive'
-
-        'johnoliver': True,
-        'form.battleforthenet': True,
-        'reddit.technology': True,
-        'blog.venturebeat': True,
-        'form.dearfcc': True,
-        'form.signforgood': True,
-        'form.demandprogress': True
-    }
+    source_mapping = {}
+    for key in tags.sources['positive']:
+        source_mapping[key]= True
+    for key in tags.sources['negative']:
+        source_mapping[key]= False
     if analysis['source'] in source_mapping:
         analysis['titleii'] = source_mapping[analysis['source']]
 
