@@ -9,6 +9,8 @@ from elasticsearch import Elasticsearch
 from elasticsearch.helpers import bulk, scan
 from elasticsearch.exceptions import ConnectionTimeout
 
+import tags
+
 class SigTermsSentiment:
 
     def __init__(self, endpoint='http://localhost:9200/', limit=10000):
@@ -81,26 +83,30 @@ class SigTermsSentiment:
             }
           }
         }
+        must_not_terms = []
+        for term in tags.sources['positive'] + tags.sources['negative']:
+            must_not_terms.append({'term': {'analysis.source': term}})
+        query['query']['bool']['filter']['bool']['must_not'] += must_not_terms
+
         index_queue = multiprocessing.Queue()
 
         bulk_index_process = multiprocessing.Process(
             target=self.bulk_index, args=(index_queue,),
         )
         bulk_index_process.start()
-
         fetched = 0
+        ids = []
         try:
             while fetched < self.limit:
                 # use search instead of scan because keeping an ordered scan cursor
                 # open negates the performance benefits
-                resp = self.es.search(index='fcc-comments', body=query, size=100)
+                resp = self.es.search(index='fcc-comments', body=query, size=self.limit)
                 for doc in resp['hits']['hits']:
                     index_queue.put(doc['_id'])
                     fetched += 1
-                print('%s\t%s\t%s' % (fetched, doc['_score'],
-                    doc['_source']['text_data']))
-                if not fetched % 200:
-                    print('fetched %s/%s\t%s%%' % (fetched, self.limit, int(fetched/self.limit*100)))
+                    if not fetched % 100:
+                        print('%s\t%s\t%s' % (fetched, doc['_score'],
+                            doc['_source']['text_data']))
         except ConnectionTimeout:
             print('error fetching: connection timeout')
 
@@ -111,6 +117,7 @@ class SigTermsSentiment:
 
         actions = []
         indexed = 0
+        ids = set()
         while True:
             item = queue.get()
             if item is None:
@@ -125,6 +132,7 @@ class SigTermsSentiment:
                 'doc': { 'analysis.sentiment_sig_terms_ordered': True },
             }
             actions.append(doc)
+            ids.add(doc_id)
 
             if len(actions) == size:
                 with warnings.catch_warnings():
@@ -132,8 +140,9 @@ class SigTermsSentiment:
                     try:
                         response = bulk(self.es, actions)
                         indexed += response[0]
-                        print('\tindexed %s/%s\t%s%%' % (indexed, self.limit,
-                            int(indexed / self.limit * 100)))
+                        if not indexed % 200:
+                            print('\tindexed %s/%s\t%s%%' % (indexed, self.limit,
+                                int(indexed / self.limit * 100)))
                         actions = []
                     except ConnectionTimeout:
                         print('error indexing: connection timeout')
@@ -143,3 +152,5 @@ class SigTermsSentiment:
             response = bulk(self.es, actions)
             indexed += response[0]
             print('indexed %s' % (indexed))
+        ids = list(ids)
+        #print('%s\n%s' % (len(ids), ' '.join(ids))
