@@ -7,42 +7,10 @@ Uses [Elasticsearch](https://www.elastic.co/) to get data from [https://www.fcc.
 
 ## Queries
 
-### positive sentiment
-
 - `analysis.titleii` from [regex patterns](https://github.com/RagtagOpen/fccforensics/blob/master/server/fcc_analysis/analyzers.py#L14)
-- `analysus.sentiment_sig_terms_ordered` from [significant terms](https://github.com/RagtagOpen/fccforensics/blob/master/sig_terms.md)
-
-```
-curl -XGET "http://localhost:9200/fcc-comments/_search" -H 'Content-Type: application/json' -d'
-{
-  "size": 0,
-  "query": {
-    "bool": {
-      "minimum_should_match": 1,
-      "should": [
-        {
-          "term": {
-            "analysis.titleii": true
-          }
-        },
-        {
-          "term": {
-            "analysis.sentiment_sig_terms_ordered": true
-          }
-        }
-      ]
-    }
-  },
-  "aggs": {
-    "by_week": {
-      "date_histogram": {
-        "field": "date_received",
-        "interval": "week"
-      }
-    }
-  }
-}'
-```
+- `analysis.sentiment_sig_terms_ordered` from [significant terms](https://github.com/RagtagOpen/fccforensics/blob/master/sig_terms.md)
+- query by source [AWS Lambda](https://github.com/RagtagOpen/fccforensics/blob/master/server/fcc_analysis/lambda.py)
+- [tag_by_query.py](https://github.com/RagtagOpen/fccforensics/blob/master/server/fcc_analysis/experiements/tag_by_query.py)
 
 ## Local setup
 
@@ -101,7 +69,7 @@ Create AWS Lambda to proxy Elasticsearch queries:
 - `zip -r ../lambda.zip . --exclude experiments/*`
 - `cd $VIRTUAL_ENV/lib/python3.6/site-packages`
 - `zip -r path/to/server/lambda.zip .`
-- upload to AWS; set handler to `lambda.query_positive_by_date`
+- upload to AWS; set handler to `lambda.query_by_source`
 
 Create AWS API Gateway to proxy Lambda function
 
