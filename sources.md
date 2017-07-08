@@ -98,11 +98,11 @@
 
 > A free and open internet is critical for Americans to connect with their friends and family, exercise their freedom of speech
 
-`bot.maga`
-
 `bot.dissapear`
 
 > make sure net neutrality does not dissapear
+
+> make sure net neutrality does not dissapear. It is the only thing saving the internet at this moment. If it is removed many webservices will be at risk.
 
 `bot.telecommunications_act`
 
@@ -112,6 +112,10 @@
 
 > small companies to compete with large online businesses up to the whims of our internet providers
 
+> We should not leave the ability for small companies to compete with large online businesses up to the whims of our internet providers. It is our responsibility to defend our right to free market competition. IF THENEWSEARCHENGINE is better than Google, Google's wealth should not strike down the new engine if our internet providers choose not to be benevolent. Please save net neutrality. My job as a freelance artist counts on it and so does millions of others!
+
 `bot.maga`
 
 > mesmorized by money that it jeopardizes the well-being of its citizens. Is this how we MAGA
+
+> Leave the net neutrality alone. Internet speed should not be for sale. There is nothing wrong with out current system save for the greedy corporations who wish to turn the internet into their own pay-to-play and a government willing to let them do it. You serve the American people not just Verizon, AT&T, etc. IF you think the current protests are bad, try touching new neutrality. I will never understand why a nation who has come so far is hell bent on going back to the 18th century. No other modern nation is so mesmorized by money that it jeopardizes the well-being of its citizens. Is this how we MAGA?
