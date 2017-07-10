@@ -1,3 +1,4 @@
+from datetime import timedelta
 import json
 import multiprocessing
 from tqdm import tqdm
@@ -9,17 +10,18 @@ from elasticsearch import Elasticsearch
 from elasticsearch.helpers import bulk, scan
 from elasticsearch.exceptions import ConnectionTimeout
 
-from .analyzers import analyze
+from analyzers import analyze
 
 
 class CommentAnalyzer:
 
-    def __init__(self, endpoint='http://localhost:9200/', verify=True, limit=10000):
+    def __init__(self, endpoint='http://localhost:9200/', verify=True, limit=10000, date=None):
         self.endpoint = endpoint
         self.verify = verify
         self.es = Elasticsearch(self.endpoint)
         self.limit = int(limit)
         self.indexed = 0
+        self.date = date
 
     def run(self):
         in_queue = multiprocessing.Queue(maxsize=10000)
@@ -35,17 +37,31 @@ class CommentAnalyzer:
         index_process.start()
 
         fetched = 0
-        query = {
-            'query': {
-                'bool': {
-                    'must_not': {
-                        'exists': {
-                            'field': 'analysis'
-                        }
-                    }
+        if self.date:
+            query = {
+              "query": {
+                "range": {
+                  "date_disseminated": {
+                    "gte": self.date.strftime('%Y-%m-%d'),
+                    "lt": (self.date + timedelta(days=1)).strftime('%Y-%m-%d'),
+                    "format": "yyyy-MM-dd"
+                  }
                 }
+              }
             }
-        }
+        else:
+            query = {
+              "query": {
+                "bool": {
+                  "must_not": {
+                    "exists": {
+                      "field": "analysis"
+                    }
+                  }
+                }
+              }
+            }
+        print(json.dumps(query))
         try:
             for doc in scan(self.es, index='fcc-comments', query=query, size=100):
                 in_queue.put(doc['_source'])
@@ -65,6 +81,7 @@ class CommentAnalyzer:
         out_queue.put(None)
 
         index_process.join()
+        return fetched
 
     def tagging_worker(self, in_queue, out_queue):
         while True:
@@ -72,10 +89,11 @@ class CommentAnalyzer:
             if comment is None:
                 break
             analysis = analyze(comment)
+            # don't overwite existing analyis values
+            analysis.update(comment.get('analyis', {}))
             out_queue.put((comment['id_submission'], analysis))
 
     def index_worker(self, queue, size=200):
-
         actions = []
         indexed = 0
         while True:
@@ -110,5 +128,3 @@ class CommentAnalyzer:
             response = bulk(self.es, actions)
             indexed += response[0]
             print('indexed %s' % (indexed))
-
-

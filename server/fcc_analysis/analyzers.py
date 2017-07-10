@@ -252,10 +252,8 @@ def onsite(comment):
 def analyze(comment):
 
     analysis = {
-        'fingerprint': fingerprint(comment),
         'fulladdress': fulladdress(comment),
         'capsemail': capsemail(comment),
-        # 'titleii': titleii(comment),
         'source': source(comment),
         'proceedings_keys': proceeding_keys(comment),
         'onsite': onsite(comment),
@@ -271,7 +269,6 @@ def analyze(comment):
         analysis['titleii'] = source_mapping[analysis['source']]
 
     if 'titleii' not in analysis:
-
         titleii_sent = titleii(comment)
         if titleii_sent is not None:
             analysis['titleii'] = titleii_sent

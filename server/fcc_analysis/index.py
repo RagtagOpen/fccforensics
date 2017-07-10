@@ -12,7 +12,7 @@ from elasticsearch import Elasticsearch
 from elasticsearch.helpers import bulk
 import requests
 
-from . import mappings
+import mappings
 
 class CommentIndexer:
 
@@ -55,6 +55,7 @@ class CommentIndexer:
 
         index_queue.put(None)
         bulk_index_process.join()
+        return self.stats['fetched']
 
     def build_query(self):
         query = {

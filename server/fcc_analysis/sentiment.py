@@ -1,9 +1,10 @@
+from datetime import timedelta
 import json
 import multiprocessing
-from tqdm import tqdm
 import requests
 import warnings
 import io
+from math import sqrt
 
 from elasticsearch import Elasticsearch
 from elasticsearch.helpers import bulk, scan
@@ -13,21 +14,12 @@ import tags
 
 class SigTermsSentiment:
 
-    def __init__(self, endpoint='http://localhost:9200/', limit=10000):
+    def __init__(self, endpoint='http://localhost:9200/', limit=10000, date=None):
         self.endpoint = endpoint
         self.es = Elasticsearch(self.endpoint)
         self.limit = int(limit)
         self.indexed = 0
-
-    def run(self):
-        '''
-            get documents without a sentiment tag that match significant terms:
-            - significant terms from postive regex tagged vs others
-            - extra multi match clause for stronger terms (in multiple term sets:
-                positive vs negative, untagged, and all
-            - phrase match net neutrality since both terms score high
-        '''
-        query = {
+        self.query = {
           "_source": "text_data",
           "query": {
             "bool": {
@@ -51,11 +43,6 @@ class SigTermsSentiment:
                       "text_data",
                       "text_data.english"
                     ]
-                  }
-                },
-                {
-                  "match_phrase": {
-                    "text_data": "net neutrality"
                   }
                 }
               ],
@@ -86,7 +73,28 @@ class SigTermsSentiment:
         must_not_terms = []
         for term in tags.sources['positive'] + tags.sources['negative']:
             must_not_terms.append({'term': {'analysis.source': term}})
-        query['query']['bool']['filter']['bool']['must_not'] += must_not_terms
+        self.query['query']['bool']['filter']['bool']['must_not'] += must_not_terms
+        self.date = date
+        if date:
+            self.query['query']['bool']['filter']['bool']['must'] = [{
+              "range": {
+                "date_disseminated": {
+                  "gte": self.date.strftime('%Y-%m-%d'),
+                  "lt": (self.date + timedelta(days=1)).strftime('%Y-%m-%d'),
+                  "format": "yyyy-MM-dd"
+                }
+              }
+            }]
+        #print(json.dumps(self.query))
+
+    def run(self):
+        '''
+            get documents without a sentiment tag that match significant terms:
+            - significant terms from postive regex tagged vs others
+            - extra multi match clause for stronger terms (in multiple term sets:
+                positive vs negative, untagged, and all
+            - phrase match net neutrality since both terms score high
+        '''
 
         index_queue = multiprocessing.Queue()
 
@@ -98,9 +106,11 @@ class SigTermsSentiment:
         ids = []
         try:
             while fetched < self.limit:
-                # use search instead of scan because keeping an ordered scan cursor
-                # open negates the performance benefits
-                resp = self.es.search(index='fcc-comments', body=query, size=self.limit)
+                '''
+                    use search instead of scan because keeping an ordered scan cursor
+                    open negates the performance benefits
+                '''
+                resp = self.es.search(index='fcc-comments', body=self.query, size=self.limit)
                 for doc in resp['hits']['hits']:
                     index_queue.put(doc['_id'])
                     fetched += 1
@@ -112,6 +122,25 @@ class SigTermsSentiment:
 
         index_queue.put(None)
         bulk_index_process.join()
+
+    def preview(self, fraction=0.1):
+        fetched = 0
+        scores = []
+        while fetched < self.limit:
+            '''
+                use search instead of scan because keeping an ordered scan cursor
+                open negates the performance benefits
+            '''
+            resp = self.es.search(index='fcc-comments', body=self.query, size=self.limit)
+            total = resp['hits']['total']
+            mod_print = int(1 / fraction)
+            print('total=%s mod_print=%s' % (resp['hits']['total'], mod_print))
+            for doc in resp['hits']['hits']:
+                fetched += 1
+                scores.append(doc['_score'])
+                if not fetched % mod_print:
+                    print('\n--- comment %s\t%s\t%s' % (fetched, doc['_score'], doc['_source']['text_data']))
+
 
     def bulk_index(self, queue, size=20):
 
