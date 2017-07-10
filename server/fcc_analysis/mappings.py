@@ -78,9 +78,9 @@ FIELDS = {
         'analyzer': 'standard',
         'type': 'text',
         'fields': {
-            'fingerprint': {'analyzer': 'fingerprint', 'type': 'text'},
             'english': {'analyzer': 'english', 'type': 'text'}
-        }
+        },
+        'fielddata': True
     },
     # added by analyze
     'analysis': {
@@ -92,7 +92,17 @@ FIELDS = {
             'titleii': {'type': 'boolean'},
             'fingerprint': {'type': 'keyword'},
             'onsite': {'type': 'boolean'},
-            'fulladdress': {'type': 'boolean'}
+            'fulladdress': {'type': 'boolean'},
+            'more_like_this': {
+                'properties': {
+                    # add 'fielddata': True to enable significant terms
+                    # but it takes a lot of memory and is not recommended for large indexes
+                    'src_doc_id': {'type': 'keyword'},
+                    'is_source': {'type': 'boolean'},
+                    'matches': {'type': 'integer'},
+                    'too_short': {'type': 'boolean'}
+                }
+            }
         }
     },
 }
