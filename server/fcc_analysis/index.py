@@ -16,7 +16,7 @@ import mappings
 
 class CommentIndexer:
 
-    def __init__(self, lte=None, gte=None, limit=250, sort='date_disseminated,ASC', fastout=False, verify=True, endpoint='http://127.0.0.1/'):
+    def __init__(self, lte=None, gte=None, limit=250, sort='date_disseminated,ASC', fastout=False, verify=True, endpoint='http://127.0.0.1/', start_offset=0):
         if gte and not lte:
             lte = datetime.now().isoformat()
         if lte and not gte:
@@ -31,7 +31,8 @@ class CommentIndexer:
         self.fcc_endpoint = 'https://ecfsapi.fcc.gov/filings'
         self.index_fields = mappings.FIELDS.keys()
         self.es = Elasticsearch(self.endpoint)
-        self.stats = {'indexed': 0, 'fetched': 0}
+        self.start_offset = start_offset
+        self.stats = {'indexed': start_offset, 'fetched': start_offset}
 
     def run(self):
         self.total = self.get_total() or 5000000
@@ -72,6 +73,7 @@ class CommentIndexer:
     def get_total(self):
         query = self.build_query()
         query['limit'] = 1
+        print('%s?%s' % (self.fcc_endpoint, query))
         response = requests.get(self.fcc_endpoint, params=query)
         try:
             agg = response.json().get('aggregations', {})
@@ -90,7 +92,7 @@ class CommentIndexer:
         for page in itertools.count(0):
             query.update({
                 'limit': self.limit,
-                'offset': page * self.limit,
+                'offset': page * self.limit + self.start_offset,
             })
             response = requests.get(self.fcc_endpoint, params=query)
             try:
