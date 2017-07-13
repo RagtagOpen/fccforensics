@@ -38,7 +38,7 @@ def ingestion_method(comment):
     if comment.get('browser', '').startswith('OpenCSV'):
         return 'csv'
 
-    for proceeding in comment['proceedings']:
+    for proceeding in comment.get('proceedings', []):
         if '_index' in proceeding:
             return 'direct'
 
@@ -65,7 +65,7 @@ def source(comment):
         return 'bot.outraged'
 
     # This one is interesting, because it appends the Submitter's first name to the text_data, making the fingerprint unreliable...
-    if comment['text_data'].startswith('The FCC Open Internet Rules (net neutrality rules) are extremely important to me'):
+    if comment['text_data'].startswith('Open Internet Rules (net neutrality rules) are extremely important to me'):
         return 'form.battleforthenet'
 
     if 'my understanding that the FCC Chairman intends to reverse net neutrality rules' in comment['text_data']:
@@ -154,6 +154,7 @@ def source(comment):
 
     if 'mesmorized by money that it jeopardizes the well-being of its citizens. Is this how we MAGA' in comment['text_data']:
         return 'bot.maga'
+
 
     '''
         TODO: pro templates
