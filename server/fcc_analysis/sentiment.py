@@ -14,7 +14,7 @@ import tags
 
 class SigTermsSentiment:
 
-    def __init__(self, endpoint='http://localhost:9200/', limit=10000, date=None):
+    def __init__(self, endpoint='http://localhost:9200/', limit=10000, from_date=None, to_date=None):
         self.endpoint = endpoint
         self.es = Elasticsearch(self.endpoint)
         self.limit = int(limit)
@@ -74,18 +74,22 @@ class SigTermsSentiment:
         for term in tags.sources['positive'] + tags.sources['negative']:
             must_not_terms.append({'term': {'analysis.source': term}})
         self.query['query']['bool']['filter']['bool']['must_not'] += must_not_terms
-        self.date = date
-        if date:
+        #self.date = date
+        self.from_date = from_date
+        self.to_date = to_date
+        if from_date and not to_date:
+            self.to_date = from_date + timedelta(days=1)
+        if from_date:
             self.query['query']['bool']['filter']['bool']['must'] = [{
               "range": {
                 "date_disseminated": {
-                  "gte": self.date.strftime('%Y-%m-%d'),
-                  "lt": (self.date + timedelta(days=1)).strftime('%Y-%m-%d'),
+                  "gte": self.from_date.strftime('%Y-%m-%d'),
+                  "lt": self.to_date.strftime('%Y-%m-%d'),
                   "format": "yyyy-MM-dd"
                 }
               }
             }]
-        #print(json.dumps(self.query))
+        print(json.dumps(self.query))
 
     def run(self):
         '''
@@ -139,7 +143,8 @@ class SigTermsSentiment:
                 fetched += 1
                 scores.append(doc['_score'])
                 if not fetched % mod_print:
-                    print('\n--- comment %s\t%s\t%s' % (fetched, doc['_score'], doc['_source']['text_data']))
+                    print('\n--- comment %s\t%s\t%s\t%s' % (fetched, doc['_id'],
+                        doc['_score'], doc['_source']['text_data'][:1000]))
 
 
     def bulk_index(self, queue, size=20):
