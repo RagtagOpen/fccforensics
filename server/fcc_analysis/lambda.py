@@ -1,3 +1,4 @@
+import json
 import os
 
 from elasticsearch import Elasticsearch
@@ -6,6 +7,18 @@ import tags
 
 def query_by_source(event=None, context=None):
     es = Elasticsearch(os.environ['ES_ENDPOINT'])
+    query = {
+      "_source": "date_disseminated",
+      "size": 1,
+      "sort": [
+        {
+          "date_disseminated": "desc"
+        }
+      ]
+    }
+    resp = es.search(index='fcc-comments', body=query)
+    total = resp['hits']['total']
+    latest = resp['hits']['hits'][0]['_source']['date_disseminated']
     # positive
     query = {
       "size": 0,
@@ -54,6 +67,8 @@ def query_by_source(event=None, context=None):
         by_source[src['key']] = src['doc_count']
     by_source['sig_terms'] = resp['aggregations']['sigterms']['buckets'][0]['doc_count']
     rval = {
+        'total': total,
+        'latest': latest,
         'total_positive': resp['hits']['total'],
         'positive_by_source': by_source
     }
@@ -107,4 +122,4 @@ def query_by_source(event=None, context=None):
 
 
 if __name__ == '__main__':
-    print(query_by_source())
+    print(json.dumps(query_by_source(), indent=2))
