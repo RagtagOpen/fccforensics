@@ -5,6 +5,8 @@ from .index import CommentIndexer
 from .analyze import CommentAnalyzer
 from .create import IndexCreator
 from .sentiment import SigTermsSentiment
+from .breached import BreachChecker
+
 
 def create_command(args):
     parser = argparse.ArgumentParser(description='Create fcc-comments index with mappings')
@@ -82,9 +84,19 @@ def positive_sig_terms_command(args):
     analyzer = SigTermsSentiment(**vars(command_args))
     analyzer.run()
 
+def breached_command(args):
+    parser = argparse.ArgumentParser(description='Analyze comments to check if they were in a breach')
+    parser.add_argument(
+        '--endpoint', dest='endpoint',
+        default=os.environ.get('ES_ENDPOINT', 'http://127.0.0.1:9200/')
+    )
+    command_args = parser.parse_args(args=args)
+    pwned = BreachChecker(**vars(command_args))
+    pwned.run()
+
 def main():
     parser = argparse.ArgumentParser(description='Run commands to index and analyze FCC comments')
-    parser.add_argument('command', choices=['index', 'analyze', 'create', 'tag_sigterms'])
+    parser.add_argument('command', choices=['index', 'analyze', 'create', 'tag_sigterms', 'breached'])
     parser.add_argument('args', nargs=argparse.REMAINDER)
 
     args = parser.parse_args()
@@ -94,4 +106,5 @@ def main():
         'index': index_command,
         'analyze': analyze_command,
         'tag_sigterms': positive_sig_terms_command,
+        'breached': breached_command
     }[args.command](args.args)

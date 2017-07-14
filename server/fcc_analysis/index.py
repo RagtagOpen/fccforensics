@@ -12,7 +12,7 @@ from elasticsearch import Elasticsearch
 from elasticsearch.helpers import bulk
 import requests
 
-import mappings
+from . import mappings
 
 class CommentIndexer:
 
