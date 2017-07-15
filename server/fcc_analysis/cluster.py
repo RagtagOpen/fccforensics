@@ -13,7 +13,7 @@ class MLTClusterer:
 
     def __init__(self, endpoint='http://localhost:9200/', limit=100, date=None):
         self.endpoint = endpoint
-        self.es = Elasticsearch(self.endpoint)
+        self.es = Elasticsearch(self.endpoint, timeout=30)
         self.limit = int(limit)
         '''
             get 95% more like this documents that:
@@ -38,22 +38,19 @@ class MLTClusterer:
                         "field": "text_data"
                       }
                     }
-                  ],
-                  "must_not": [
-                    {
-                      "term": {
-                        "id_submission": ""
-                      }
-                    }
                   ]
                 }
               },
               "must": {
                   "more_like_this": {
                     "min_term_freq": 1,
-                    "like": "",
-                    "max_query_terms": 50,
-                    "minimum_should_match": "95%",
+                    "like": [{
+                      "_index" : "fcc-comments",
+                      "_type" : "document",
+                      "_id" : ""
+                    }],
+                    "max_query_terms": 40,
+                    "minimum_should_match": "80%",
                     "fields": [
                       "text_data"
                     ],
@@ -84,7 +81,8 @@ class MLTClusterer:
           }
         }
         '''
-            get a document from an unknown source that does not have a more like this field
+            get a document from an unknown source and unknown sentiment
+            that does not have a more like this field
         '''
         self.untagged_query = {
           "_source": [
@@ -102,8 +100,11 @@ class MLTClusterer:
               ],
               "must_not": [
                 {
-                  "exists": {"field": "analysis."+TAG}
-                }
+                  "exists": {"field": "analysis.%s" % TAG},
+                },
+                {
+                  "exists": {"field": "analysis.titleii"},
+                },
               ]
             }
           }
@@ -132,12 +133,12 @@ class MLTClusterer:
             hit = resp['hits']['hits'][0]
             text = hit['_source']['text_data']
             print('\n--- %s/%s more like %s\n%s\n----' % (
-                tagged, untagged_total, hit['_id'], text[:400]))
+                tagged, resp['hits']['total'], hit['_id'], text[:400]))
             mlt = {}
 
             # only run more like this for comments of at least 20 words
             terms = len(text.split(' '))
-            if terms >= 20:
+            if terms >= 50:
                 mlt_matches = self.tag_mlt(text, hit['_id'])
                 mlt = {
                     'is_source': True,
@@ -167,14 +168,10 @@ class MLTClusterer:
         query = {}
         query.update(self.mlt_query)
         query.update(self.mlt_aggs)
-        query['query']['bool']['must']['more_like_this']['like'] = text
-        terms = min([50, len(text.split(' '))])
+        query['query']['bool']['must']['more_like_this']['like'][0]['_id'] = src_doc_id
+        terms = min([40, len(text.split(' '))])
         query['query']['bool']['must']['more_like_this']['max_query_terms'] = terms
-        # exclude the doc where this text came from
-        query['query']['bool']['filter']['bool']['must_not'] = [
-            {'term': {'id_submission': src_doc_id}}
-        ]
-        #print('mlt query=%s' % json.dumps(query))
+        print('mlt query=%s' % json.dumps(query))
 
         # get page of like this results; not all because want to check for existing clusters
         resp = self.es.search(index='fcc-comments', body=query, size=10)
@@ -218,6 +215,8 @@ class MLTClusterer:
             mlt_matches = resp['hits']['total']
 
         # fetch matching untagged docs
+        if not mlt_matches:
+            return 0
         print('fetching %s' % mlt_matches)
         docs = []
         for doc in scan(self.es, index='fcc-comments', query=query, size=1000):
@@ -231,9 +230,10 @@ class MLTClusterer:
             docs.append(lib.bulk_update_doc(doc['_id'], mlt))
             if not len(docs) % 1000:
                 print('\tfetched %s / %s' % (len(docs), mlt_matches))
-        print('done fetching')
 
         # update with analysis.more_like_this
+        if not docs:
+            return 0
         print('indexing %s' % (len(docs)))
         return lib.bulk_update(self.es, docs)
 
