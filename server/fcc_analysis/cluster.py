@@ -32,6 +32,11 @@ class MLTClusterer:
                       "exists": {
                         "field": "analysis"
                       }
+                    },
+                    {
+                      "exists": {
+                        "field": "text_data"
+                      }
                     }
                   ],
                   "must_not": [
@@ -126,8 +131,8 @@ class MLTClusterer:
         while tagged < self.limit and resp['hits']['total']:
             hit = resp['hits']['hits'][0]
             text = hit['_source']['text_data']
-            print('\n--- more like %s\n%s\n----' % (hit['_id'], text[:400]))
-            print('\t%s/%s' % (tagged, untagged_total))
+            print('\n--- %s/%s more like %s\n%s\n----' % (
+                tagged, untagged_total, hit['_id'], text[:400]))
             mlt = {}
 
             # only run more like this for comments of at least 20 words
@@ -234,5 +239,5 @@ class MLTClusterer:
 
 
 if __name__ == '__main__':
-    cluster = MLTClusterer(endpoint=os.environ['ES_ENDPOINT'], limit=1000, date=datetime(2017, 7, 5))
+    cluster = MLTClusterer(endpoint=os.environ['ES_ENDPOINT'], limit=1000, date=datetime(2017, 7, 12))
     cluster.run()
