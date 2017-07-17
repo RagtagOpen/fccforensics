@@ -1,17 +1,15 @@
 from datetime import datetime
 import itertools
 import json
-import math
-import time
 import warnings
 import multiprocessing
-from tqdm import tqdm
 
 from elasticsearch import Elasticsearch
 from elasticsearch.helpers import bulk
 import requests
 
 import mappings
+from analyzers import analyze
 
 class CommentIndexer:
 
@@ -125,6 +123,7 @@ class CommentIndexer:
                 print('nothing in the queue')
                 break
 
+            document['analysis'] = analyze(document)
             doc = {
                 '_index': 'fcc-comments',
                 '_type': 'document',

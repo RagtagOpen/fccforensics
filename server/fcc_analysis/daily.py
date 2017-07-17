@@ -5,7 +5,6 @@ import sys
 import argparse
 
 from index import CommentIndexer
-from analyze import CommentAnalyzer
 from sentiment import SigTermsSentiment
 from cluster import MLTClusterer
 
@@ -28,14 +27,6 @@ print('---- indexing')
 indexer = CommentIndexer(lte=args.date, gte=args.date, endpoint=args.endpoint, start_offset=0)
 total = indexer.run()
 print('\nindexed %s comments\n' % total)
-
-# analyze
-print('---- analyzing')
-dt = datetime.strptime(args.date, '%Y-%m-%d')
-
-analyzer = CommentAnalyzer(endpoint=args.endpoint, date=dt, limit=total)
-analyzed = analyzer.run()
-print('\nanalyzed %s comments\n' % analyzed)
 
 print('---- tagging by query')
 terms = SigTermsSentiment(endpoint=args.endpoint, limit=total)
