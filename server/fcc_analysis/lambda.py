@@ -75,7 +75,8 @@ def query_by_source(event=None, context=None):
         if src['key'] == 'unknown':
             continue
         by_source[src['key']] = src['doc_count']
-    by_source['sig_terms'] = resp['aggregations']['sigterms']['buckets'][0]['doc_count']
+    if resp['aggregations']['sigterms']['buckets']:
+        by_source['sig_terms'] = resp['aggregations']['sigterms']['buckets'][0]['doc_count']
     rval = {
         'total': total,
         'latest': latest,
@@ -134,11 +135,13 @@ def query_by_source(event=None, context=None):
 
 def query_by_source_s3(event=None, context=None):
     data = query_by_source(event, context)
+    data['updated'] = datetime.now().isoformat()
     # save output to S3
     s3 = boto3.resource('s3')
     s3.Object(os.environ['S3_BUCKET'], 'by_source.json').put(
       Body=json.dumps(data),
       ContentType='application/json',
+      ACL='public-read',
       Expires=(datetime.now() + timedelta(hours=6))
     )
     return data
