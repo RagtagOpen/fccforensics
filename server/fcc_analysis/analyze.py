@@ -115,7 +115,7 @@ class CommentAnalyzer:
                     try:
                         response = bulk(self.es, actions)
                         indexed += response[0]
-                        print('\tindexed %s/%s\t%s%%' % (indexed, self.limit,
+                        print('\tanalyzed %s/%s\t%s%%' % (indexed, self.limit,
                             int(indexed / self.limit * 100)))
                         actions = []
                     except ConnectionTimeout:
