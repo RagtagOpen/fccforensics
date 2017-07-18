@@ -45,41 +45,16 @@ class SigTermsSentiment:
                   }
                 }
               ],
-              "filter": {
-                "bool": {
-                  "must_not": [
-                    {
-                      "exists": {
-                        "field": "analysis.titleii"
-                      }
-                    },
-                    {
-                      "exists": {
-                        "field": "analysis.sentiment_manual"
-                      }
-                    },
-                    {
-                      "exists": {
-                        "field": "analysis.sentiment_sig_terms_ordered"
-                      }
-                    }
-                  ]
-                }
-              }
+              "filter": tags.queries['untagged']['query']['bool']['filter']
             }
           }
         }
-        must_not_terms = []
-        for term in tags.sources['positive'] + tags.sources['negative']:
-            must_not_terms.append({'term': {'analysis.source': term}})
-        self.query['query']['bool']['filter']['bool']['must_not'] += must_not_terms
-        #self.date = date
         self.from_date = from_date
         self.to_date = to_date
         if from_date and not to_date:
             self.to_date = from_date + timedelta(days=1)
         if from_date:
-            self.query['query']['bool']['filter']['bool']['must'] = [{
+            self.query['query']['bool']['filter']['bool']['must'].append({
               "range": {
                 "date_disseminated": {
                   "gte": self.from_date.strftime('%Y-%m-%d'),
@@ -87,7 +62,7 @@ class SigTermsSentiment:
                   "format": "yyyy-MM-dd"
                 }
               }
-            }]
+            })
 
     def run(self):
         '''
@@ -131,72 +106,39 @@ class SigTermsSentiment:
               - let the new neutrality stand
             for a broader result set than regex in analyze
         '''
-        query = {
-          "_source": "text_data",
-          "query": {
-            "bool": {
-              "filter": {
-                "bool": {
-                  "should": [
-                  ],
-                  "must": [
-                    {
-                      "term": {
-                        "analysis.source": "unknown"
-                      }
-                    }
-                  ],
-                  "must_not": [
-                    {
-                      "exists": {
-                        "field": "analysis.titleii"
-                      }
-                    },
-                    {
-                      "exists": {
-                        "field": "analysis.sentiment_manual"
-                      }
-                    },
-                    {
-                      "exists": {
-                        "field": "analysis.sentiment_sig_terms_ordered"
-                      }
-                    }
-                  ]
-                }
-              }
-            }
-          }
-        }
-
+        query = tags.queries['untagged']
+        query['_source'] = 'text_data'
         phrases = [
             'essential net neutrality',
             'keep net neutrality',
             'maintain net neutrality',
             'need net neutrality',
-            'preserve net neutrality'
+            'preserve net neutrality',
             'protect net neutrality',
             'save net neutrality',
             'support net neutrality',
             'support title 2',
             'support title II',
             'let the new neutrality stand',
-            'net neutrality rules are extremely important',
-            'net neutrality is important'
+            'net neutrality important',
+            'retain title 2',
+            'retain title ii',
+            'keep net neutral',
+            'safeguard net neutrality',
+            'afraid of pay-to-play',
+            'fast lane',
+            'slow lane',
+            'support classifying internet under Title II',
         ]
-        '''
-retain title 2
-        '''
         for phrase in phrases:
             subq = {
-              "match_phrase": {
-                "text_data": {
-                  "query": phrase,
-                  "slop": 3
+                'match_phrase': {
+                    'text_data': {'query': phrase, 'slop': 3}
                 }
-              }
             }
+            query['query']['bool']['filter']['bool'].setdefault('should', [])
             query['query']['bool']['filter']['bool']['should'].append(subq)
+            query['query']['bool']['filter']['bool']['minimum_should_match'] = 1
         print(json.dumps(query))
         resp = self.es.search(index='fcc-comments', body=query, size=0)
         total = resp['hits']['total']
@@ -215,17 +157,16 @@ retain title 2
         return tagged
 
 
-
     def preview(self, fraction=0.1):
         fetched = 0
         scores = []
+        mod_print = int(1 / fraction)
         while fetched < self.limit:
             '''
                 use search instead of scan because keeping an ordered scan cursor
                 open negates the performance benefits
             '''
             resp = self.es.search(index='fcc-comments', body=self.query, size=self.limit)
-            mod_print = int(1 / fraction)
             print('total=%s mod_print=%s' % (resp['hits']['total'], mod_print))
             for doc in resp['hits']['hits']:
                 fetched += 1
@@ -278,5 +219,5 @@ retain title 2
         #print('%s\n%s' % (len(ids), ' '.join(ids))
 
 if __name__ == '__main__':
-    terms = SigTermsSentiment(endpoint=os.environ['ES_ENDPOINT'], limit=50000)
+    terms = SigTermsSentiment(endpoint=os.environ['ES_ENDPOINT'], limit=5000)
     terms.tag_positive_terms()
