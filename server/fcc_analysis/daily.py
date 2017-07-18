@@ -3,8 +3,6 @@ import os
 import sys
 
 import argparse
-from elasticsearch import Elasticsearch
-from elasticsearch.helpers import bulk
 
 from index import CommentIndexer
 from analyze import CommentAnalyzer
@@ -27,8 +25,7 @@ print('process comments for %s' % args.date)
 
 # index
 print('---- indexing')
-
-indexer = CommentIndexer(lte=args.date, gte=args.date, endpoint=args.endpoint)
+indexer = CommentIndexer(lte=args.date, gte=args.date, endpoint=args.endpoint, start_offset=0)
 total = indexer.run()
 print('\nindexed %s comments\n' % total)
 
@@ -40,12 +37,16 @@ analyzer = CommentAnalyzer(endpoint=args.endpoint, date=dt, limit=total)
 analyzed = analyzer.run()
 print('\nanalyzed %s comments\n' % analyzed)
 
-# cluster
-print('---- find clusters')
-cluster = MLTClusterer(endpoint=endpoint, limit=total, date=dt)
-cluster.run()
+print('---- tagging by query')
+terms = SigTermsSentiment(endpoint=args.endpoint, limit=total)
+terms.tag_positive_terms()
 
 # preview sig terms
 print('---- previewing sig terms')
-terms = SigTermsSentiment(endpoint=args.endpoint, date=dt, limit=min([5000, total]))
+terms = SigTermsSentiment(endpoint=args.endpoint, from_date=dt, to_date=(dt + timedelta(days=1)), limit=min([5000, total]))
 terms.preview(fraction=0.1)
+
+# cluster
+print('---- find clusters')
+cluster = MLTClusterer(endpoint=args.endpoint, date=dt)
+cluster.run()

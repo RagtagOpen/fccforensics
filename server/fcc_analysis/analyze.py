@@ -1,10 +1,8 @@
 from datetime import timedelta
 import json
 import multiprocessing
-from tqdm import tqdm
-import requests
+
 import warnings
-import io
 
 from elasticsearch import Elasticsearch
 from elasticsearch.helpers import bulk, scan
@@ -107,7 +105,7 @@ class CommentAnalyzer:
                 '_type': 'document',
                 '_op_type': 'update',
                 '_id': id_submission,
-                'doc': { 'analysis': analysis },
+                'doc': {'analysis': analysis},
             }
             actions.append(doc)
 

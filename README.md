@@ -3,7 +3,7 @@ Determine public opinion on net neutrality issue via sourcing and sentiment anal
 
 Based on https://github.com/csinchok/fcc-comment-analysis, plus more from Ragtag volunteers
 
-Uses [Elasticsearch](https://www.elastic.co/) to get data from [https://www.fcc.gov/ecfs/public-api-docs.html](FCC's public API)
+Uses [Elasticsearch](https://www.elastic.co/) to get data from [FCC's public API](https://www.fcc.gov/ecfs/public-api-docs.html)
 
 ## Queries
 
@@ -46,7 +46,7 @@ Play in Kibana:
   - Time-field name: `date_dissemenated`
   - Create
 
-[https://ragtag.org/connect](Contribute!)
+[Contribute!](https://ragtag.org/connect)
 
 
 ## Production setup
