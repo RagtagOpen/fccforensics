@@ -16,6 +16,7 @@ args = parser.parse_args(args=sys.argv[1:])
 
 es = Elasticsearch(args.endpoint)
 
+cluster_ids = tags.clusters['positive'] + tags.clusters['negative']
 query = {
   "aggs": {
     "cluster": {
@@ -31,7 +32,7 @@ query = {
           "must_not": [
             {
               "terms": {
-                "analysis.more_like_this.src_doc_id.keyword": tags.clusters['positive']
+                "analysis.more_like_this.src_doc_id.keyword": cluster_ids
               }
             }
           ]
