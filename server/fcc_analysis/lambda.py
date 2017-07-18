@@ -119,6 +119,9 @@ def query_by_source(event=None, context=None):
     query['query']['bool']['should'].append({
         'terms': {'analysis.source': tags.sources['negative']}
     })
+    query['query']['bool']['should'].append({
+        'terms': {'analysis.more_like_this.src_doc_id': tags.clusters['negative']}
+    })
     print('negative query=%s' % json.dumps(query))
     resp = es.search(index='fcc-comments', body=query)
     by_source = {}
