@@ -181,9 +181,12 @@ class SigTermsSentiment:
             'support title 2',
             'support title II',
             'let the new neutrality stand',
-            'net neutrality rules are extremely important'
+            'net neutrality rules are extremely important',
             'net neutrality is important'
         ]
+        '''
+retain title 2
+        '''
         for phrase in phrases:
             subq = {
               "match_phrase": {

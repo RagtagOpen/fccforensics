@@ -19,6 +19,7 @@ parser.add_argument(
     '--date', dest='date', help='Date in yyyy-mm-dd format', default=yesterday
 )
 args = parser.parse_args(args=sys.argv[1:])
+dt = datetime.strptime(args.date, '%Y-%m-%d')
 
 print('process comments for %s' % args.date)
 
