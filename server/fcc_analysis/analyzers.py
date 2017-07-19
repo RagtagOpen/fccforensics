@@ -56,7 +56,28 @@ def source(comment):
 
     '''
     if 'text_data' not in comment:
-        return
+        return 'empty'
+
+    # from http://about.att.com/sites/open_internet
+    att_messages = [
+        'I am writing in regard to the Commission’s work on preserving an open internet',
+        'there is a right way and a wrong way to preserve the concept of an open internet',
+        'While the internet has drastically changed over the years, our internet regulations remain outdated',
+        'the open internet is compromised when partisan politics and regulatory uncertainty come into play',
+        'overturn the existing burdensome rules at the FCC and enact lasting legislation',
+        'time for Congress to provide clear direction by passing legislation that provides certainty',
+        'overturn the current law designed 80 years ago, before the Internet was created, is a great first step',
+        'our internet regulations remain outdated',
+        'heavy-handed regulations will do more harm than good',
+        'get rid of the rules that were harming the internet economy',
+        'urge you to work with your fellow members of Congress and the FCC to permanently preserve an open internet by supporting bipartisan legislation',
+        'believe only legislation can ensure we have permanent, enforceable open internet rules',
+        'Bipartisan legislation can help end the years-long political back-and-forth',
+        'get rid of the rules that unfairly and heavy-handedly enforced these principles'
+    ]
+    for msg in att_messages:
+        if msg in comment['text_data']:
+            return 'form.att'
 
     if comment['text_data'].startswith('The unprecedented regulatory power the Obama Administration imposed on the internet'):
         return 'bot.unprecedented'
