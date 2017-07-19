@@ -37,7 +37,13 @@
 
 `form.tpa`
 
+http://www.tpaaction.org/
+
 > Obama's Federal Communications Commission (FCC) forced regulations on the internet that put the government
+
+> As a concerned taxpayer and consumer, I am writing to urge the FCC to set the internet free and remove the inappropriate, unnecessary and overly vast regulations currently holding back the full potential of the internet. Due to the grip of the utility-style regulations imposed under the previous Commission, taxpayers have been put at risk, the threat of new fees on consumer bills still looms large, investment in internet infrastructure has not realized its full potential, innovations have gone undeveloped and unrealized, and twenty years of the appropriate level of oversight of the internet has been reversed.
+>
+> We must dial-back the poorly conceived application of Title II in the Open Internet Order so that American taxpayers can benefit from an unrestrained and truly open internet that scales back the unlimited power of the government, protects consumers from new taxes and encourages future investment and endless innovations.
 
 `bot.best_cop`
 
@@ -57,8 +63,53 @@
 
 > Obama's Net Neutrality order was the corrupt result of a corrupt process controlled by Silicon Valley special interests. It gives some of the biggest companies in the world a free ride at the expense of consumers and should be immediately repealed!
 
-`bot.recursive`
+`form.att`
 
+http://about.att.com/sites/open_internet
+
+> I am writing in regard to the Commission's work on preserving an open internet
+
+> there is a right way and a wrong way to preserve the concept of an open internet
+
+> While the internet has drastically changed over the years, our internet regulations remain outdated
+
+> the open internet is compromised when partisan politics and regulatory uncertainty come into play
+
+> work with each other to overturn the existing burdensome rules at the FCC and enact lasting legislation
+
+> time for Congress to provide clear direction by passing legislation that provides certainty
+
+> action to overturn the current law designed 80 years ago, before the Internet was created, is a great first step
+
+> While the internet has drastically changed over the years, our internet regulations remain outdated
+
+> I agree with the current FCC that heavy-handed regulations will do more harm than good
+
+> work to get rid of the rules that were harming the internet economy
+
+> urge you to work with your fellow members of Congress and the FCC to permanently preserve an open internet by supporting bipartisan legislation
+
+> believe only legislation can ensure we have permanent, enforceable open internet rules
+
+> Bipartisan legislation can help end the years-long political back-and-forth
+
+> get rid of the rules that unfairly and heavy-handedly enforced these principles
+
+
+`bot.telephone_monopoly`
+
+> Title II is a Depression-era regulatory framework designed for a telephone monopoly that no longer exists. It was wrong to apply it to the Internet and the FCC should repeal it and go back to the free-market approach that worked so well.
+
+
+`bot.titleii_takeover`
+
+> Dear FCC Commissioner ,
+> 
+> The Obama-era FCC regulations known as ""Title II"" enable the federal government to exert an extraordinary and unnecessary amount of regulatory control over the internet. This bureaucratic overreach impedes innovation, stifles investment and continues to create economic uncertainty for one of the largest sectors of the U.S. economy.
+> 
+> I support Chairman Pai's proposal to roll back Title II and restore the sensible regulatory framework that enjoyed broad bipartisan consensus and enabled the internet to thrive for more than two decades.
+> 
+> I strongly urge all of the FCC Commissioners to support the Chairman's proposal to repeal the harmful Title II internet takeover.
 
 ## positive
 

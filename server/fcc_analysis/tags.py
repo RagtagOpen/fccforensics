@@ -22,7 +22,7 @@ sources = {
         "bot.american-jobs", "bot.unprecedented", "bot.outraged",
         "form.diminished-investment", "form.freeourinternet", "form.fwact", "form.tpa",
         "bot.best_cop", "bot.economics_free_zone", "bot.corrupt_result", "bot.recursive",
-        "template.att"]
+        "form.att", "bot.telephone_monopoly", "bot.titleii_takeover", "es_terms_negative"]
 }
 
 clusters = {

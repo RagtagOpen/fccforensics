@@ -79,6 +79,12 @@ def source(comment):
         if msg in comment['text_data']:
             return 'form.att'
 
+    if 'Title II is a Depression-era regulatory framework designed for a telephone monopoly that no longer exists' in comment['text_data']:
+        return 'bot.telephone_monopoly'
+
+    if 'enable the federal government to exert an extraordinary and unnecessary amount of regulatory control' in comment['text_data']:
+        return 'bot.titleii_takeover'
+
     if comment['text_data'].startswith('The unprecedented regulatory power the Obama Administration imposed on the internet'):
         return 'bot.unprecedented'
 
@@ -108,6 +114,9 @@ def source(comment):
         return 'form.fwact'
 
     if comment['text_data'].startswith('Obama\'s Federal Communications Commission (FCC) forced regulations on the internet that put the government'):
+        return 'form.tpa'
+
+    if 'enable the federal government to exert an extraordinary and unnecessary amount of regulatory control over the internet' in comment['text_data']:
         return 'form.tpa'
 
     if 'These rules have cost taxpayers, slowed down broadband infrastructure investment, and hindered competition and choice for Americans' in comment['text_data']:
