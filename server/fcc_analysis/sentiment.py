@@ -1,3 +1,4 @@
+import copy
 from datetime import timedelta
 import json
 import multiprocessing
@@ -15,7 +16,7 @@ class SigTermsSentiment:
 
     def __init__(self, endpoint='http://localhost:9200/', limit=10000, from_date=None, to_date=None):
         self.endpoint = endpoint
-        self.es = Elasticsearch(self.endpoint)
+        self.es = Elasticsearch(self.endpoint, timeout=30)
         self.limit = int(limit)
         self.indexed = 0
         self.query = {
@@ -100,45 +101,28 @@ class SigTermsSentiment:
         bulk_index_process.join()
 
     def tag_negative_terms(self):
-        query = tags.queries['untagged']
-        query['_source'] = 'text_data'
+        neg_query = copy.copy(tags.queries['untagged'])
+        neg_query['_source'] = 'text_data'
         phrases = [
-            'I support Chairman Pai\'s proposal to roll back Title II',
-            'remove the inappropriate, unnecessary and overly vast regulations',
-            'Title II is a Depression-era regulatory framework designed for a telephone monopoly that no longer exists',
+            'our internet regulations remain outdated'
         ]
+        neg_query['query']['bool']['filter']['bool']['should'] = []
+        neg_query['query']['bool']['filter']['bool']['minimum_should_match'] = 1
         for phrase in phrases:
             subq = {
                 'match_phrase': {
                     'text_data': {'query': phrase, 'slop': 3}
                 }
             }
-            query['query']['bool']['filter']['bool'].setdefault('should', [])
-            query['query']['bool']['filter']['bool']['should'].append(subq)
-            query['query']['bool']['filter']['bool']['minimum_should_match'] = 1
-            return self.tag_by_phrase(query, 'es_terms_negative')
-        '''
-Dear FCC Commissioner ,
- 
- The Obama-era FCC regulations known as ""Title II"" enable the federal government to exert an extraordinary and unnecessary amount of regulatory control over the internet. This bureaucratic overreach impedes innovation, stifles investment and continues to create economic uncertainty for one of the largest sectors of the U.S. economy.
- 
- I support Chairman Pai's proposal to roll back Title II and restore the sensible regulatory framework that enjoyed broad bipartisan consensus and enabled the internet to thrive for more than two decades.
- 
- I strongly urge all of the FCC Commissioners to support the Chairman's proposal to repeal the harmful Title II internet takeover.
----        
-"As a concerned taxpayer and consumer, I am writing to urge the FCC to set the internet free and remove the inappropriate, unnecessary and overly vast regulations currently holding back the full potential of the internet. Due to the grip of the utility-style regulations imposed under the previous Commission, taxpayers have been put at risk, the threat of new fees on consumer bills still looms large, investment in internet infrastructure has not realized its full potential, innovations have gone undeveloped and unrealized, and twenty years of the appropriate level of oversight of the internet has been reversed.
-
-We must dial-back the poorly conceived application of Title II in the Open Internet Order so that American taxpayers can benefit from an unrestrained and truly open internet that scales back the unlimited power of the government, protects consumers from new taxes and encourages future investment and endless innovations.
----
-Title II is a Depression-era regulatory framework designed for a telephone monopoly that no longer exists. It was wrong to apply it to the Internet and the FCC should repeal it and go back to the free-market approach that worked so well.
-        '''
+            neg_query['query']['bool']['filter']['bool']['should'].append(subq)
+        return self.tag_by_phrase(neg_query, 'es_terms_negative')
 
     def tag_positive_terms(self):
         '''
             get documents without a sentiment tag that match phrase with slop:
             for a broader result set than regex in analyze
         '''
-        query = tags.queries['untagged']
+        query = copy.copy(tags.queries['untagged'])
         query['_source'] = 'text_data'
         phrases = [
             'afraid of pay-to-play',
@@ -187,29 +171,28 @@ Title II is a Depression-era regulatory framework designed for a telephone monop
             'treat all data on the internet the same',
             'upholding net neutrality protections',
         ]
+        query['query']['bool']['filter']['bool']['should'] = []
+        query['query']['bool']['filter']['bool']['minimum_should_match'] = 1
         for phrase in phrases:
             subq = {
                 'match_phrase': {
                     'text_data': {'query': phrase, 'slop': 3}
                 }
             }
-            query['query']['bool']['filter']['bool'].setdefault('should', [])
             query['query']['bool']['filter']['bool']['should'].append(subq)
-            query['query']['bool']['filter']['bool']['minimum_should_match'] = 1
-            print(json.dumps(query))
-            return self.tag_by_phrase(query, 'es_terms_positive')
+        return self.tag_by_phrase(query, 'es_terms_positive')
 
-    def tag_by_phrase(self, query, source):
-        print(json.dumps(query))
-        resp = self.es.search(index='fcc-comments', body=query, size=0)
+    def tag_by_phrase(self, tag_query, source):
+        print('query=%s source=%s' % (json.dumps(tag_query), source))
+        resp = self.es.search(index='fcc-comments', body=tag_query, size=0)
         total = resp['hits']['total']
         print('tagging %s / %s matches' % (self.limit, total))
         docs = []
-        for doc in scan(self.es, index='fcc-comments', query=query, size=1000):
+        for doc in scan(self.es, index='fcc-comments', query=tag_query, size=1000):
             docs.append(lib.bulk_update_doc(doc['_id'], {'source': source}))
-            if not len(docs) % 1000:
+            if not len(docs) % 100:
                 print('\tfetched %s\n%s\t%s' % (len(docs), doc['_id'], doc['_source']['text_data'][:400]))
-            if len(docs) == self.limit:
+            if len(docs) >= self.limit:
                 break
 
         print('indexing %s' % (len(docs)))
@@ -280,4 +263,7 @@ Title II is a Depression-era regulatory framework designed for a telephone monop
 
 if __name__ == '__main__':
     terms = SigTermsSentiment(endpoint=os.environ['ES_ENDPOINT'], limit=5000)
+    print('--- positive')
     terms.tag_positive_terms()
+    print('\n--- negative')
+    #terms.tag_negative_terms()
