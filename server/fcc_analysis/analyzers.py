@@ -58,6 +58,9 @@ def source(comment):
     if 'text_data' not in comment:
         return 'empty'
 
+    if 'proposal to reverse net neutrality protections because a free and open internet is vital for our democracy' in comment['text_data']:
+        return 'form.aclu'
+
     # from http://about.att.com/sites/open_internet
     att_messages = [
         'I am writing in regard to the Commission’s work on preserving an open internet',
