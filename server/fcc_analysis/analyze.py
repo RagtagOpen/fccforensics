@@ -8,7 +8,7 @@ from elasticsearch import Elasticsearch
 from elasticsearch.helpers import bulk, scan
 from elasticsearch.exceptions import ConnectionTimeout
 
-from analyzers import analyze
+from .analyzers import analyze
 
 
 class CommentAnalyzer:
