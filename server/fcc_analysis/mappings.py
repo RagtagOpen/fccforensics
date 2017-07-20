@@ -93,6 +93,7 @@ FIELDS = {
             'fingerprint': {'type': 'keyword'},
             'onsite': {'type': 'boolean'},
             'fulladdress': {'type': 'boolean'},
+            'breached': {'type': 'boolean'},
             'more_like_this': {
                 'properties': {
                     # add 'fielddata': True to enable significant terms
