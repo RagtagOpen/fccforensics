@@ -113,6 +113,16 @@ http://about.att.com/sites/open_internet
 
 ## positive
 
+`form.aclu`
+
+https://action.aclu.org/secure/comment-net-neutrality
+
+> I strongly oppose Chairman Pai's proposal to reverse net neutrality protections because a free and open internet is vital for our democracy, for our businesses, and for our daily lives.
+>
+> Net neutrality is a vital principle in a democratic society. The biggest losers under Chairman Pai's proposal are independent news outlets, small businesses, start-up blogs, grassroots activist groups...and everyone who uses the internet. And we won't stay quiet while mega-corporations gain control over the information we consume every day.
+>
+> Chairman Pai's pay-to-play model would give giant internet companies the power to prioritize what we read, watch, and explore online. I won't stand for it. It's about my right to be heard and my right to hear others. I submit my public comment to oppose Chairman Pai's proposal to reverse net neutrality protections.
+
 `form.battleforthenet`
 
 > The FCC Open Internet Rules (net neutrality rules) are extremely important to me
