@@ -104,7 +104,10 @@ class SigTermsSentiment:
         neg_query = copy.copy(tags.queries['untagged'])
         neg_query['_source'] = 'text_data'
         phrases = [
-            'our internet regulations remain outdated'
+            'our internet regulations remain outdated',
+            'strongly support fully repealing',
+            'Repeal the Obama Wheeler Internet regulations',
+            'Save American jobs by repealing Net Neutrality',
         ]
         neg_query['query']['bool']['filter']['bool']['should'] = []
         neg_query['query']['bool']['filter']['bool']['minimum_should_match'] = 1
@@ -126,8 +129,9 @@ class SigTermsSentiment:
         query['_source'] = 'text_data'
         phrases = [
             'afraid of pay-to-play',
+            'backed by title 2 oversight of ISP'
             'Changing Title II requirements would adversely',
-            'do not change title 2 classification',
+            'do not change title 2',
             'essential net neutrality',
             'fast lane',
             'FCC should reject Chairman Ajit Pai\'s plan',
@@ -135,6 +139,12 @@ class SigTermsSentiment:
             'I believe in strong Net Neutrality',
             'internet is NOT a communication company GOLDEN EGG LAYING GOOSE',
             'Internet service providers should treat all data that travels over their networks fairly',
+            'ISP should be regulated',
+            'ISP should be monitored',
+            'ISP should be under Title II',
+            'ISP create fast lanes',
+            'ISP need to be regulated',
+            'ISP should be regulated'
             'keep net neutral',
             'keep net neutrality',
             'let the new neutrality stand',
@@ -164,6 +174,7 @@ class SigTermsSentiment:
             'slow lane',
             'stand up for net neutrality',
             'strongly oppose Chairman Pai\'s proposal',
+            'support backed by Title 2',
             'support classifying internet under Title II',
             'support net neutrality',
             'support title 2',
@@ -173,6 +184,7 @@ class SigTermsSentiment:
         ]
         query['query']['bool']['filter']['bool']['should'] = []
         query['query']['bool']['filter']['bool']['minimum_should_match'] = 1
+        # TODO: fuzzy match for misspelling of neutrality
         for phrase in phrases:
             subq = {
                 'match_phrase': {
@@ -190,7 +202,7 @@ class SigTermsSentiment:
         docs = []
         for doc in scan(self.es, index='fcc-comments', query=tag_query, size=1000):
             docs.append(lib.bulk_update_doc(doc['_id'], {'source': source}))
-            if not len(docs) % 100:
+            if not len(docs) % 1000:
                 print('\tfetched %s\n%s\t%s' % (len(docs), doc['_id'], doc['_source']['text_data'][:400]))
             if len(docs) >= self.limit:
                 break

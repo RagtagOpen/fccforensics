@@ -94,8 +94,7 @@ def source(comment):
     if comment['text_data'].startswith('I was outraged by the Obama/Wheeler FCC'):
         return 'bot.outraged'
 
-    # This one is interesting, because it appends the Submitter's first name to the text_data, making the fingerprint unreliable...
-    if comment['text_data'].startswith('Open Internet Rules (net neutrality rules) are extremely important to me'):
+    if 'Open Internet Rules (net neutrality rules) are extremely important to me' in comment['text_data']:
         return 'form.battleforthenet'
 
     if 'my understanding that the FCC Chairman intends to reverse net neutrality rules' in comment['text_data']:
@@ -129,6 +128,9 @@ def source(comment):
         return 'bot.internetuser'
 
     if 'The FCC needs to stand up for Internet users like me and keep the net neutrality rules that are already in effect.' in comment['text_data']:
+        return 'form.dearfcc'
+
+    if 'plan to give the government-subsidized ISP monopolies like AT&T, Verizon, and Comcast the legal cover to throttle' in comment['text_data']:
         return 'form.dearfcc'
 
     if comment['text_data'].startswith('This illogically named "restoring internet freedom" filing is aimed squarely at the freedom of the internet'):
@@ -306,5 +308,9 @@ def analyze(comment):
         titleii_sent = titleii(comment)
         if titleii_sent is not None:
             analysis['titleii'] = titleii_sent
+
+    text = comment.get('text_data', '')
+    if len(text) < 13 or len(text.split(' ')) < 3:
+        analysis['untaggable'] = True
 
     return analysis
