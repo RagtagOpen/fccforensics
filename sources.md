@@ -141,6 +141,18 @@ https://action.aclu.org/secure/comment-net-neutrality
 
 `form.dearfcc`
 
+https://dearfcc.org/
+
+> The FCC should safeguard Internet freedom by keeping the bright-line net neutrality protections in place and upholding Title II. 
+>
+> The FCC should throw out Chairman Ajit Pai’s plan to give the government-subsidized telecom giants like AT&T, Comcast, and Verizon free rein to create Internet fast lanes, stripping users of the vital privacy and access rules we worked for and just recently won. 
+>
+> I’m concerned about ISPs being allowed to discriminate against certain types of data or websites because 
+>
+> Thankfully, the existing FCC regulations mean that ISPs can’t block or slow our access to certain web services or create Internet “fast lanes” by charging online services and websites more money to reach customers faster. That’s exactly the right balance to ensure the Internet remains a level playing field that benefits small businesses and Internet users as well as entrenched Internet companies. Pai’s proposal would transform ISPs into gatekeepers with the ability to veto new innovation and expression. That’s not how the Internet was built, and that's not what we want. 
+
+or
+
 > The FCC needs to stand up for Internet users like me and keep the net neutrality rules that are already in effect.
 
 `bot.illogically-named`
