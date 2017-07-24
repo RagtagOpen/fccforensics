@@ -133,6 +133,41 @@ def query_by_source(event=None, context=None):
         'total_negative': resp['hits']['total'],
         'negative_by_source': by_source
     })
+    # count breached by source
+    query = {
+      "query": {
+        "constant_score": {
+          "filter": {
+            "exists": {
+              "field": "analysis.breached"
+            }
+          }
+        }
+      },
+      "aggs": {
+        "source": {
+          "terms": {
+            "field": "analysis.source"
+          },
+          "aggs": {
+            "breached": {
+              "terms": {
+                "field": "analysis.breached"
+              }
+            }
+          }
+        }
+      }
+    }
+    resp = es.search(index='fcc-comments', body=query, size=0)
+    breached = {}
+    for source in resp['aggregations']['source']['buckets']:
+        src = source['key']
+        breached[src] = {}
+        for b in source['breached']['buckets']:
+            breached[src]['breached' if b['key'] else 'unbreached'] = b['doc_count']
+    rval['breached'] = breached
+    rval['sources'] = tags.sources
     return rval
 
 
@@ -148,6 +183,7 @@ def query_by_source_s3(event=None, context=None):
       Expires=(datetime.now() + timedelta(hours=6))
     )
     return data
+
 
 if __name__ == '__main__':
     print(json.dumps(query_by_source(), indent=2))

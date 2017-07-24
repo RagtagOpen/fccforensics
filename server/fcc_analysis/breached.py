@@ -43,7 +43,8 @@ class BreachChecker:
     def tag_by_email(self, emails, breached):
         docs = []
         s = Search(using=self.es).\
-            filter(Q({'terms': {'contact_email.keyword': emails}}))
+            filter(Q({'terms': {'contact_email.keyword': emails}})).\
+            source(['id_submission'])
         print('%s emails breached=%s' % (len(emails), breached))
         for hit in s.scan():
             docs.append(lib.bulk_update_doc(hit['id_submission'], {'breached': breached}))
@@ -69,7 +70,8 @@ class BreachChecker:
                           must=must,
                           must_not=[Q('exists', field='analysis.breached')]),
                   functions=[SF('random_score', seed=int(time.time()))]
-            ))
+            )).\
+            source(['contact_email'])
         print('%s breached: source=%s limit=%s' % (datetime.now().isoformat(), self.source,
             self.limit))
         print('query=\n%s' % json.dumps(s.to_dict()))
@@ -85,4 +87,7 @@ class BreachChecker:
             docs += self.tag_by_email(list(emails['breached']), True)
         if emails['unbreached']:
             docs += self.tag_by_email(list(emails['unbreached']), False)
-        lib.bulk_update(self.es, docs)
+        try:
+            lib.bulk_update(self.es, docs)
+        except Exception as e:
+            print('error indexing: %s' % e)
