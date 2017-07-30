@@ -66,7 +66,7 @@ Create AWS Lambda to refresh data:
 
 Create AWS Lambda to proxy Elasticsearch queries:
 - `cd server/fcc_analysis`
-- `zip -r ../lambda.zip . --exclude experiments/*`
+- `zip -r ../lambda.zip . --exclude experiments/* --exclude *.csv --exclude *.txt`
 - `cd $VIRTUAL_ENV/lib/python3.6/site-packages`
 - `zip -r path/to/server/lambda.zip .`
 - upload to AWS; set handler to `lambda.query_by_source`
