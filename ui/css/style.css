@@ -1,6 +1,31 @@
+.logo-image {
+  margin-bottom: 10px;
+}
+
 .logo-image img {
-    width: auto;
-    height: auto;
-    max-width: 100%;
-    max-height: 50px;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 50px;
+  border: 0;
+}
+
+#app {
+  margin: 10px 0 10px 0;
+}
+
+.sources pre {
+  white-space: pre-wrap;
+}
+
+.sources .source-header i {
+  padding-right: 10px;
+}
+
+.sources .source-header .name {
+  font-weight: bold;
+}
+
+.sources .source-header .badge {
+  height: 20px;
 }

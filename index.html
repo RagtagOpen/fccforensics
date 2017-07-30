@@ -11,13 +11,31 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.4.0/vue.js"></script>
     <title>FCC forensics</title>
   </head>
-  <body>
+  <body class="container">
     <div class="logo-image">
-        <img src="//static1.squarespace.com/static/58265bb0b8a79bc71b1ae170/t/59714754ebbd1a218c7904cc/1500562947888/?format=1500w" alt="Ragtag">
+        <a href="https://ragtag.org/"><img src="//static1.squarespace.com/static/58265bb0b8a79bc71b1ae170/t/59714754ebbd1a218c7904cc/1500562947888/?format=1500w" alt="Ragtag"></a>
     </div>
-    <div id="app" class="container">
+    <div>
+        <a href="https://github.com/RagtagOpen/fccforensics">fccforensics</a> is a
+        project by Ragtag volunteers to collect and analyze <a href="https://ecfsapi.fcc.gov/filings">comments on the FCC's plan to abolish net neutrality.</a>
+    </div>
+    <div id="app">
+    <!--
       <div class="row">
-        <div class="col-md-6">
+        <div class="col-md-8">
+          <div class="description">
+            Who is writing these comments on the FCC site? Real people are strongly in favor of net neutrality; bots are against it.
+          </div>
+          <h4>Anti-Title II comments</h4>
+          <div id="bySourceNegative"></div>
+          <h4>Pro-Title II comments</h4>
+          <div id="bySourcePositive"></div>
+        </div>
+      </div>
+    -->
+      <div class="row">
+        <div class="col-md-8">
+          <h3>Sentiment and email breaches</h3>
           <div class="description">
             What happens when you check a random sample of commenter's email addresses against the <a href="https://haveibeenpwned.com">https://haveibeenpwned.com</a> API?  The email addresses of the anti-Title II comments are much more likely to have been exposed in a data breach.
           </div>
@@ -27,7 +45,47 @@
           <div id="breachedPositive"></div>
         </div>
       </div>
+
+      <div class="row">
+        <h3>About the sources</h3>
+      </div>
+      <div class="row sources">
+        <ul>
+            <li><i class="fa fa-user-circle-o"></i> <b>Individuals</b> write comments that are unique, and don't exactly match lots of other comments</li>
+            <li><i class="fa fa-bullhorn"></i> <b>Forms</b> come from websites that submit comments on a person's behalf, or provide sample text for people to cut and paste into the FCC comment form. Advocacy groups want people to find and use their message.</li>
+            <li><i class="fa fa-server"></i> <b>Bots</b> are large groups of comments whose text can't be found via Google.</li>
+        </ul>
+        <div class="col-md-6">
+          <h4>Anti-Title II</h4>
+            <ul class="list-group">
+              <source-description v-for="source in negativeSources" :source="source"></source-description>
+            </ul>
+        </div>
+        <div class="col-md-6">
+            <h4>Pro-Title II</h4>
+            <source-description v-for="source in positiveSources" :source="source"></source-description>
+        </div>
+      </div>
+
     </div>
+
+    <script type="text/x-template" id="sources-template">
+      <li class="list-group-item justify-content-between">
+        <div class="d-flex w-100 justify-content-between source-header">
+          <span>
+            <i class="fa" :class="source.iconClass" :title="source.icon"></i>
+            <span class="name" v-if="source.url">
+              <a :href="source.url">{{source.id}}</a>
+            </span>
+            <span class="name" v-else>{{source.id}}</span>
+          </span>
+          <span class="badge badge-default badge-pill">{{source.count}}</span>
+        </div>
+        <div class="sample">
+          <pre>{{source.sample}}</pre>
+        </div>
+      </li>
+    </script>
 
     <script
       src="https://code.jquery.com/jquery-3.2.1.min.js"
@@ -39,6 +97,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/billboard.js/1.0.1/billboard.js"></script>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/billboard.js/1.0.1/billboard.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <script src="ui/src/app.js"></script>
   </body>
 </html>

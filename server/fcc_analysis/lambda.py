@@ -52,6 +52,7 @@ def query_by_source(event=None, context=None):
       "aggs": {
         "source": {
           "terms": {
+            "size": 25,
             "field": "analysis.source"
           }
         },
@@ -111,6 +112,7 @@ def query_by_source(event=None, context=None):
       "aggs": {
         "source": {
           "terms": {
+            "size": 25,
             "field": "analysis.source"
           }
         }
@@ -147,6 +149,7 @@ def query_by_source(event=None, context=None):
       "aggs": {
         "source": {
           "terms": {
+            "size": 25,
             "field": "analysis.source"
           },
           "aggs": {
@@ -167,7 +170,7 @@ def query_by_source(event=None, context=None):
         for b in source['breached']['buckets']:
             breached[src]['breached' if b['key'] else 'unbreached'] = b['doc_count']
     rval['breached'] = breached
-    rval['sources'] = tags.sources
+    rval['sources'] = tags.source_meta
     return rval
 
 
