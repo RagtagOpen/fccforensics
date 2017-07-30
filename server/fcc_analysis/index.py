@@ -8,7 +8,7 @@ from elasticsearch import Elasticsearch
 from elasticsearch.helpers import bulk
 import requests
 
-from . import mappings
+import mappings
 from analyzers import analyze
 
 class CommentIndexer:
@@ -27,7 +27,7 @@ class CommentIndexer:
         self.endpoint = endpoint
         self.fcc_endpoint = 'https://ecfsapi.fcc.gov/filings'
         self.index_fields = mappings.FIELDS.keys()
-        self.es = Elasticsearch(self.endpoint)
+        self.es = Elasticsearch(self.endpoint, timeout=30)
         self.start_offset = start_offset
         self.stats = {'indexed': start_offset, 'fetched': start_offset}
 
@@ -45,7 +45,7 @@ class CommentIndexer:
 
         for comment in self.iter_comments():
             self.stats['fetched'] += 1
-            if not self.stats['fetched'] % 100:
+            if not self.stats['fetched'] % 500:
                 print('fetched %s/%s\t%s%%\t%s' % (self.stats['fetched'], self.total,
                     int(self.stats['fetched'] / self.total * 100),
                     comment['date_disseminated']))
