@@ -310,7 +310,9 @@ def analyze(comment):
             analysis['titleii'] = titleii_sent
 
     text = comment.get('text_data', '')
-    if len(text) < 13 or len(text.split(' ')) < 3:
+    words = len(text.split(' '))
+    analysis['words'] = words
+    if len(text) < 13 or words < 3:
         analysis['untaggable'] = True
 
     return analysis
