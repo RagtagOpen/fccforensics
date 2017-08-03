@@ -25,6 +25,13 @@ query = {
     "function_score": {
       "query": {
         "bool": {
+          "must_not": [
+            {
+              "term": {
+                "contact_email.keyword": ""
+              }
+            }
+          ],
           "must": [
             {
               "term": {
@@ -52,14 +59,20 @@ def run_query(src, fn, rows=200):
     emails = set()
     batches = 0
     print(json.dumps(query))
+    total = None
     with open(fn, 'w', newline='') as outfile:
         writer = csv.writer(outfile, delimiter='\t', quoting=csv.QUOTE_MINIMAL)
         writer.writerow(['email', 'name', 'date', 'comment', 'url'])
         while len(emails) < rows and batches < 10:
-            if batches > 0:
-                print('\tbatch %s: have %s' % (batches+1, len(emails)))
             offset = batches * 100
+            if total and offset > total:
+                break
             resp = es.search(index='fcc-comments', body=query, size=100, from_=offset)
+            if batches == 0:
+                total = resp['hits']['total']
+                print('\t%s matches' % (total))
+            else:
+                print('\tbatch %s: have %s' % (batches+1, len(emails)))
             batches += 1
             for doc in resp['hits']['hits']:
                 if len(emails) == rows:
@@ -74,8 +87,13 @@ def run_query(src, fn, rows=200):
                 ])
 
 if __name__ == '__main__':
+    '''
     for source in tags.sources['positive']:
         run_query(source, 'positive_%s.csv' % source.replace('.', '_'))
 
     for source in tags.sources['negative']:
         run_query(source, 'negative_%s.csv' % source.replace('.', '_'))
+    '''
+    sources = ['form.freepress', 'bot.illogically-named', 'form.aclu', 'form.aclu']
+    for source in sources:
+      run_query(source, 'contact_%s.csv' % source.replace('.', '_'))
