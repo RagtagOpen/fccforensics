@@ -16,7 +16,7 @@ class MLTClusterer:
         self.es = Elasticsearch(self.endpoint, timeout=30)
         self.limit = int(limit)
         '''
-            get 95% more like this documents that:
+            get 80% more like this documents that:
             - have the analysis field
             - are not the source document
             - don't already have a more like this source document
@@ -27,12 +27,14 @@ class MLTClusterer:
             "bool": {
               "filter": {
                 "bool": {
-                  "must": [
+                  "must_not": [
                     {
-                      "exists": {
-                        "field": "analysis"
+                      "term": {
+                        "analysis.untaggable": True
                       }
-                    },
+                    }
+                  ],
+                  "must": [
                     {
                       "exists": {
                         "field": "text_data"
@@ -164,13 +166,19 @@ class MLTClusterer:
             resp = self.es.search(index='fcc-comments', body=self.untagged_query, size=1)
 
     def tag_mlt(self, text, src_doc_id, min_cluster_size=100):
-        # set up query: more like this with aggregations
+        # first run a count
         query = {}
         query.update(self.mlt_query)
-        query.update(self.mlt_aggs)
         query['query']['bool']['must']['more_like_this']['like'][0]['_id'] = src_doc_id
         terms = min([40, len(text.split(' '))])
         query['query']['bool']['must']['more_like_this']['max_query_terms'] = terms
+
+        print('mlt query=%s' % json.dumps(query))
+        resp = self.es.count(index='fcc-comments', body=query)
+        if not resp['count']:
+            return 0
+        # add aggregations
+        query.update(self.mlt_aggs)
         print('mlt query=%s' % json.dumps(query))
 
         # get page of like this results; not all because want to check for existing clusters
@@ -219,7 +227,7 @@ class MLTClusterer:
             return 0
         print('fetching %s' % mlt_matches)
         docs = []
-        for doc in scan(self.es, index='fcc-comments', query=query, size=1000):
+        for doc in scan(self.es, index='fcc-comments', query=query, size=500):
             mlt = {}
             mlt[TAG] = {
                 'src_doc_id': src_doc_id,
@@ -239,5 +247,5 @@ class MLTClusterer:
 
 
 if __name__ == '__main__':
-    cluster = MLTClusterer(endpoint=os.environ['ES_ENDPOINT'], limit=1000, date=datetime(2017, 7, 12))
+    cluster = MLTClusterer(endpoint=os.environ['ES_ENDPOINT'], limit=1000)
     cluster.run()
