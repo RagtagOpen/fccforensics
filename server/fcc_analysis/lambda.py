@@ -8,7 +8,7 @@ from elasticsearch import Elasticsearch
 import tags
 
 def query_by_source(event=None, context=None):
-    es = Elasticsearch(os.environ['ES_ENDPOINT'])
+    es = Elasticsearch(os.environ['ES_ENDPOINT'], timeout=30)
     query = {
       "_source": "date_disseminated",
       "size": 1,
