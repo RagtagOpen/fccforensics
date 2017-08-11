@@ -111,7 +111,7 @@ const vm = new Vue({
                 const total = (breached[source].breached || 0) +
                   (breached[source].unbreached || 0);
 
-                return `${source} - ${d3.format(',')(total)} commentsmorage`;
+                return `${source} - ${d3.format(',')(total)} comments`;
               }
 
               return source;
