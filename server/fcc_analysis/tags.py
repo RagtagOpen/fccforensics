@@ -2,27 +2,20 @@ import json
 
 sources = {
     'positive': [
-        "form.battleforthenet", "reddit.technology", "blog.venturebeat",
-        "bot.internetuser", "form.dearfcc", "bot.illogically-named", "form.signforgood",
-        "form.freepress", "form.demandprogress", "bot.maga", "bot.dissapear",
-        "bot.telecommunications_act", "bot.thenewsearchengine"],
-    'negative': [
-        "bot.american-jobs", "bot.unprecedented", "bot.outraged",
-        "form.diminished-investment", "form.freeourinternet", "form.fwact",
-        "form.tpa", "bot.best_cop", "bot.economics_free_zone", "bot.corrupt_result",
-        "bot.recursive"]
-}
-sources = {
-    'positive': [
         "form.battleforthenet", "reddit.technology", "blog.venturebeat", "bot.internetuser",
         "form.dearfcc", "bot.illogically-named", "form.signforgood", "form.freepress",
-        "form.demandprogress", "bot.maga", "bot.dissapear", "bot.telecommunications_act",
-        "bot.thenewsearchengine", "es_terms_positive", "form.aclu"],
+        "form.freepress2",  "form.demandprogress", "bot.maga", "bot.dissapear",
+        "bot.telecommunications_act", "bot.thenewsearchengine", "es_terms_positive",
+        "form.aclu", "bot.day_of_action", "bot.serious", "bot.mercy", "bot.save_the_internet",
+        "form.techcrunch", "bot.freelance"
+    ],
     'negative': [
         "bot.american-jobs", "bot.unprecedented", "bot.outraged",
         "form.diminished-investment", "form.freeourinternet", "form.fwact", "form.tpa",
         "bot.best_cop", "bot.economics_free_zone", "bot.corrupt_result", "bot.recursive",
-        "form.att", "bot.telephone_monopoly", "bot.titleii_takeover", "es_terms_negative"]
+        "form.att", "bot.telephone_monopoly", "bot.titleii_takeover", "es_terms_negative",
+        "bot.rammed", "bot.wheeler", "bot.commensense", "bot.free_market_internet",
+        "form.protecting_taxpayers"]
 }
 
 clusters = {
@@ -301,6 +294,12 @@ Thankfully, the existing net neutrality rules ensure that Internet providers can
         'url': 'http://act.freepress.net/sign/internet_NN_pai/',
         'sample': 'Net Neutrality is not negotiable. It’s essential to everything we need in our society and democracy'
     },
+    'form.freepress2': {
+        'icon': 'form',
+        'sentiment': 'positive',
+        'url': 'http://act.freepress.net/letter/internet_fcc_nprm_nn_2017/',
+        'sample': '''Cable and phone companies provide access to the internet. They're telecommunications carriers. They do not (and should not) have the right to censor or slow down my speech and my access to online content. When I use my broadband service, I decide who I communicate with and what information I transmit. I want the FCC to retain the ability to stop my internet service provider from interfering with my communications choices. The courts have already told the FCC that to do this, ISPs must remain under Title II.  \n\nI'm urging FCC Chairman Ajit Pai to preserve real Net Neutrality rules and keep Title II in place for broadband internet access.''',
+    },
     'form.demandprogress': {
         'icon': 'form',
         'sentiment': 'positive',
@@ -336,7 +335,68 @@ Paul Ng'''
         'icon': 'form',
         'url': 'https://www.youtube.com/watch?v=92vuuZt7wak',
         'sample': 'I support strong net neutrality backed by title II oversights of ISP'''
-    }
+    },
+    'bot.rammed': {
+        'sentiment': 'negative',
+        'icon': 'bot',
+        'sample': '''Before leaving office, the Obama Administration rammed through a massive scheme that gave the federal government broad regulatory control over the internet. That misguided policy decision is threatening innovation and hurting broadband investment in one of the largest and most important sectors of the U.S. economy.
+
+I support the Federal Communications Commission's decision to roll back Title II and allow for free market principles to guide our digital economy''',
+    },
+    'bot.wheeler': {
+        'sentiment': 'negative',
+        'icon': 'bot',
+        'sample': '''In 2015, Chairman Tom Wheeler\x92s Federal Communications Commission (FCC) imposed restrictive Title II, utility-style regulations under the guise of an \x93open internet.\x94 Not only have these regulations inhibited innovation in the internet ecosystem, they hurt taxpayers and consumers by expanding the regulatory reach of the FCC and limiting investment in internet infrastructure. We cannot allow this revolutionary tool to be bogged down with excessive government interference.\n \nIt is past time for the FCC, an agency that is funded by American taxpayers, to free the internet of burdensome regulations. By rolling back the misguided 2015 regulations we can restore an unrestricted and truly open internet. I thank the Commissioners for considering these comments during the reply period.''',
+    },
+    'bot.commensense': {
+        'sentiment': 'negative',
+        'icon': 'bot',
+        'sample': '''The current FCC regulatory scheme known as "Title II" represents an unprecedented increase in government control over the internet. Such over-regulation is hurting our economy and suffocating innovation.
+
+I support Chairman Pai\'s plan to return to a commonsense regulatory framework that allows for the internet to grow without useless government interference. The internet has flourished for decades without the heavy hand of government over-regulation.  It\x92s time we return to what works''',
+    },
+    'bot.day_of_action': {
+        'sentiment': 'positive',
+        'icon': 'bot',
+        'sample': '''On July 12 is the Protect Net Neutrality Day of Action! This would be the day to protect our freedom of internet and Fight to escape the control of our life by the ISPs - the corporations we all despise. Do not let them get away with this, fight For Our Future as if our life depend on it!''',
+    },
+    'bot.serious': {
+        'sentiment': 'positive',
+        'icon': 'bot',
+        'sample': '''Dear Ladies and Gentlemen. Net neutrality is a serious topic. Please do not implement weakend regulations. TO keep it short and save my breath: All possible negative scenarios were discussed in the past. More than that: some of them were getting reality and thus the discussion started back in 2010/ So please keep it as it is and do something useful.''',
+    },
+    'bot.mercy': {
+        'sentiment': 'positive',
+        'icon': 'bot',
+        'sample': '''We need net neutralityto continue. A free and open internet is the single greatest technology of our time, and control should not be at the mercy of corporations.''',
+    },
+    'bot.save_the_internet': {
+        'sentiment': 'positive',
+        'icon': 'bot',
+        'sample': '''Please save the internet from the corporations. Tom Wheeler was right. Let the new neutrality stand.''',
+    },
+    'form.techcrunch': {
+        'sentiment': 'positive',
+        'icon': 'form',
+        'sample': '''Paragraph 82 asks for input on whether throttling should be regulated. In the past ISPs have throttled content based on their own determination of what was lawful or permissible, and had to be forced to stop in the courts''',
+        'url': 'https://techcrunch.com/2017/04/27/how-to-comment-on-the-fccs-proposal-to-revoke-net-neutrality/',
+    },
+    'bot.free_market_internet': {
+        'sentiment': 'negative',
+        'icon': 'bot',
+        'sample': '''The free-market Internet was an incredible engine of economic growth, innovation, and job creation since the 1990s and has already been substantially slowed by the 2015 Net Neutrality rules. The slowdown in investment is destroying jobs and risks a big future tax hike to make up for lost private investment. Save American jobs by repealing Net Neutrality.''',
+    },
+    'form.protecting_taxpayers': {
+        'sentiment': 'negative',
+        'icon': 'form',
+        'sample': '''As a concerned taxpayer and consumer, I am writing to urge the FCC to set the internet free and remove the inappropriate, unnecessary and overly vast regulations currently holding back the full potential of the internet. Due to the grip of the utility-style regulations imposed under the previous Commission, taxpayers have been put at risk, the threat of new fees on consumer bills still looms large, investment in internet infrastructure has not realized its full potential, innovations have gone undeveloped and unrealized, and twenty years of the appropriate level of oversight of the internet has been reversed. We must dial-back the poorly conceived application of Title II in the Open Internet Order so that American taxpayers can benefit from an unrestrained and truly open internet that scales back the unlimited power of the government, protects consumers from new taxes and encourages future investment and endless innovations.''',
+        'url': 'https://www.protectingtaxpayers.org/take-action/',
+    },
+    'bot.freelance': {
+        'sentiment': 'positive',
+        'icon': 'bot',
+        'sample': '''Please Save Net Neutrality and Title ll rules. As a freelance translator I rely on internet spped to do my work and corporations would interfere with my searches if given the change. Do the right thing and keep the needed regulations. Thank you.''',
+    },
 }
 
 if __name__ == '__main__':

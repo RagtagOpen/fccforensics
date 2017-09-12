@@ -51,11 +51,14 @@ class CommentAnalyzer:
             query = {
               "query": {
                 "bool": {
-                  "must_not": {
-                    "exists": {
-                      "field": "analysis"
-                    }
-                  }
+                    "must": [
+                        {"term": {"analysis.source": "unknown"}}
+                    ],
+                  # "must_not": {
+                  #   "exists": {
+                  #     "field": "analysis"
+                  #   }
+                  # }
                 }
               }
             }
@@ -88,7 +91,7 @@ class CommentAnalyzer:
                 break
             analysis = analyze(comment)
             # don't overwite existing analyis values
-            analysis.update(comment.get('analyis', {}))
+            # analysis.update(comment.get('analysis', {}))
             out_queue.put((comment['id_submission'], analysis))
 
     def index_worker(self, queue, size=200):
