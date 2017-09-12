@@ -112,6 +112,9 @@ def source(comment):
     if comment['text_data'].startswith('In 2015, wealthy leftist billionaires and powerful Silicon Valley monopolies took the internet'):
         return 'form.freeourinternet'
 
+    if comment['text_data'].startswith('Rapacious Silicon Valley monopolies like Amazon'):
+        return 'form.freeourinternet'
+
     if 'Dear Express Restoring Internet Freedom,' in comment['text_data']:
         return 'form.fwact'
 
@@ -141,6 +144,9 @@ def source(comment):
 
     if comment['text_data'].startswith('Net Neutrality is not negotiable'):
         return 'form.freepress'
+
+    if comment['text_data'].startswith('Cable and phone companies provide access to the internet'):
+        return 'form.freepress2'
 
     if comment['text_data'].startswith('A free and open internet is critical for Americans to connect with their friends and family, exercise their freedom of speech'):
         return 'form.demandprogress'
@@ -190,6 +196,38 @@ def source(comment):
     if 'mesmorized by money that it jeopardizes the well-being of its citizens. Is this how we MAGA' in comment['text_data']:
         return 'bot.maga'
 
+    if 'the Obama Administration rammed through a massive scheme that gave the federal government broad regulatory control over the internet' in comment['text_data']:
+        return 'bot.rammed'
+
+    if 'imposed restrictive Title II, utility-style regulations under the guise of an' in comment['text_data'] and 'By rolling back the misguided 2015 regulations we can restore an unrestricted and truly open internet' in comment['text_data']:
+        return 'bot.wheeler'
+
+    if 'The current FCC regulatory scheme known' in comment['text_data'] and 'The internet has flourished for decades without the heavy hand of government over-regulation' in comment['text_data'] and 'plan to return to a commonsense regulatory framework' in comment['text_data']:
+        return 'bot.commonsense'
+
+    if 'On July 12 is the Protect Net Neutrality Day of Action' in comment['text_data']:
+        return 'bot.day_of_action'
+
+    if 'Dear Ladies and Gentlemen. Net neutrality is a serious topic' in comment['text_data']:
+        return 'bot.serious'
+
+    if 'We need net neutralityto continue' in comment['text_data'] and 'control should not be at the mercy of corporations' in comment['text_data']:
+        return 'bot.mercy'
+
+    if 'Please save the internet from the corporations. Tom Wheeler was right. Let the new neutrality stand' in comment['text_data']:
+        return 'bot.save_the_internet'
+
+    if 'Paragraph 82 asks for input on whether throttling should be regulated' in comment['text_data'] and 'In the past ISPs have throttled content based on their own determination of what was lawful or permissible' in comment['text_data']:
+        return 'form.techcrunch'
+
+    if 'The free-market Internet was an incredible engine of economic growth' in comment['text_data']:
+        return 'bot.free_market_internet'
+
+    if 'As a concerned taxpayer and consumer, I am writing to urge the FCC' in comment['text_data']:
+        return 'form.protecting_taxpayers'
+
+    if 'As a freelance translator I rely on internet' in comment['text_data']:
+        return 'bot.freelance'
 
     '''
         TODO: pro templates

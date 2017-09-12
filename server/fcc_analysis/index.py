@@ -8,8 +8,8 @@ from elasticsearch import Elasticsearch
 from elasticsearch.helpers import bulk
 import requests
 
-import mappings
-from analyzers import analyze
+from . import mappings
+from .analyzers import analyze
 
 class CommentIndexer:
 
