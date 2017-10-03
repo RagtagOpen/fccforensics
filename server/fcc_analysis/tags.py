@@ -397,6 +397,35 @@ I support Chairman Pai\'s plan to return to a commonsense regulatory framework t
         'icon': 'bot',
         'sample': '''Please Save Net Neutrality and Title ll rules. As a freelance translator I rely on internet spped to do my work and corporations would interfere with my searches if given the change. Do the right thing and keep the needed regulations. Thank you.''',
     },
+    'bot.unfair': {
+        'sentiment': 'positive',
+        'icon': 'bot',
+        'sample': '''Allowing broadband providers to throttle their service is unfair business practive. Weakening protections for consumers for the sake of big business is foolish and a countrer to the FCC's mandate. This proposal clearly gets rid of net neutrality. I am opposed to this. Save net neutrality and protect consumers.''',
+    },
+    'form.microbusiness': {
+        'sentiment': 'positive',
+        'icon': 'form',
+        'url': 'http://www.carvedwoodenspoons.com/blog/protect-net-neutrality',
+        'sample': '''Chairman Pai's proposed plan to repeal net neutrality protections would put a huge burden on microbusinesses like mine.
+
+As an internet business, net neutrality is essential to the success of my business and my ability to care for myself and my family. The FCC needs to ensure equal opportunities for microbusinesses to compete with larger and more established brands by upholding net neutrality protections.
+
+The internet has opened the door for me and 1.8 million other sellers to turn our passion into a business by connecting us to a global market of buyers. For 32% of creative entrepreneurs on the platform, our creative business is our sole occupation. A decrease in sales in the internet slow lane or higher cost to participate in Chairman Pai's pay-to-play environment would create significant obstacles for me and other businesses to care for ourselves and our families.
+
+Moreover, 87% of Etsy sellers in the U.S. are women, and most run their microbusinesses out of their homes. By rolling back the bright line rules that ensure net neutrality, Chairman Pai is not only taking away our livelihood, he is also putting up barriers to entrepreneurship for a whole cohort of Americans.
+
+My business growth depends on equal access to consumers. Any rule that allows broadband providers to negotiate special deals with some companies would undermine my ability to compete online.
+
+We need a free and open internet that works for everyone, not just telecom companies that stand to benefit from the FCC's proposed rules.
+
+I'm sending this to the FCC's open proceeding and to my members of Congress. Please publicly support the FCC's existing net neutrality rules based on Title II and microbusinesses like mine.''',
+    },
+    'form.ofa': {
+        'sentiment': 'positive',
+        'icon': 'form',
+        'url': 'https://www.ofa.us/protect-net-neutrality/',
+        'sample': '''Net neutrality guarantees a free and open internet. Without it, internet service providers could block or censor websites, or create “fast” and “slow” lanes. ISPs can't be allowed to abuse their position, potentially hurting businesses and consumers across the country, and privileging their own content over competitors. Revoking net neutrality by changing the Title II classification of internet access would be bad for people, bad for competition and entrepreneurship, and it's bad for the internet. I fully support keeping the current Title II classification of internet access and keeping the internet free and open.''',
+    },
 }
 
 if __name__ == '__main__':

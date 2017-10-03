@@ -229,6 +229,71 @@ def source(comment):
     if 'As a freelance translator I rely on internet' in comment['text_data']:
         return 'bot.freelance'
 
+    lower = comment['text_data'].lower()
+
+    def and_array(input_array):
+        array = [e.lower() for e in input_array]
+        val = (lower.find(array[0]) >= 0)
+        for e in array[1:]:
+            val &= (lower.find(e) >= 0)
+        return val
+
+    lanes = ["power to block websites",
+             "slow them down",
+             'split the internet into',
+             'fast lanes',
+             'for companies that pay',
+             'slow lanes',
+             'for the rest']
+    if and_array(lanes):
+        return 'form.battleforthenet'
+
+    weakened = [
+        'worried that the protections that are in place will be weakened if we change the way',
+    ]
+    if and_array(weakened):
+        return 'form.techcrunch'
+
+    unfair = [
+        "Allowing broadband providers to throttle their service is unfair business",
+        "Weakening protections for consumers for the sake of big business is foolish",
+        "This proposal clearly gets rid of net neutrality.",
+        "I am opposed to this",
+        "Save net neutrality and protect consumers",
+    ]
+    if and_array(unfair):
+        return 'bot.unfair'
+
+    undermine = [
+        'The FCC should ensure a fair and open Internet for all by opposing efforts to undermine net neutrality',
+    ]
+    undermine2 = [
+        'The FCC should throw out',
+        'to hand',
+        'stripping',
+    ]
+    if and_array(undermine) or and_array(undermine2):
+        return 'form.dearfcc'
+
+    microbusiness = [
+        "proposed plan to repeal net neutrality protections would put a huge burden on microbusinesses like mine",
+        "32% of creative entrepreneurs on the platform",
+        "Chairman Pai is not only taking away our livelihood, he is also putting up barriers to entrepreneurs"
+    ]
+    if and_array(microbusiness):
+        return 'form.microbusiness'
+
+    guarantee = [
+        "Net neutrality guarantees a free and open internet",
+        "Without it, internet service providers could block or censor websites, or create",
+        "ISPs can't be allowed to abuse their position, potentially hurting businesses and consumers across the country, and privileging their own content over competitors",
+        "Revoking net neutrality by changing the Title II classification of internet access would be bad for people, bad for competition and entrepreneurship, and it's bad for the internet",
+        "I fully support keeping the current Title II classification of internet access and keeping the internet free and open",
+    ]
+    if and_array(guarantee):
+        return 'form.ofa'
+
+
     '''
         TODO: pro templates
 
