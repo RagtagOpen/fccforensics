@@ -238,6 +238,13 @@ def source(comment):
             val &= (lower.find(e) >= 0)
         return val
 
+    def or_array(input_array):
+        array = [e.lower() for e in input_array]
+        val = (lower.find(array[0]) >= 0)
+        for e in array[1:]:
+            val |= (lower.find(e) >= 0)
+        return val
+
     lanes = ["power to block websites",
              "slow them down",
              'split the internet into',
@@ -264,15 +271,34 @@ def source(comment):
     if and_array(unfair):
         return 'bot.unfair'
 
-    undermine = [
-        'The FCC should ensure a fair and open Internet for all by opposing efforts to undermine net neutrality',
+    reject = [
+        'The FCC should reject Chairman Ajit Pai',
+        'The FCC should throw out Chairman Ajit Pai',
     ]
-    undermine2 = [
-        'The FCC should throw out',
-        'to hand',
-        'stripping',
+    stripping = [
+        'stripping consumers',
+        'stripping users',
+        'stripping Internet users',
     ]
-    if and_array(undermine) or and_array(undermine2):
+    of_the = [
+        'of the necessary',
+        'of the meaningful',
+        'of the vital',
+    ]
+    thankfully = [
+        'Thankfully, the current',
+        'Thankfully, the existing',
+    ]
+    rules = [
+        'net neutrality rules',
+        'FCC regulations',
+        'Open Internet rules',
+    ]
+    ensure = [
+        'ensure that',
+        'mean that',
+    ]
+    if or_array(reject) and or_array(stripping) and or_array(of_the) and or_array(thankfully) and or_array(rules) and or_array(ensure):
         return 'form.dearfcc'
 
     microbusiness = [
